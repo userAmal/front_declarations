@@ -1,0 +1,1410 @@
+  <div class="card" >
+
+    <div class="card" >
+      <div class="flex align-items-center justify-content-between mb-0" >
+        <h5 > <span style="color: orange; font-weight: bold;">VOS INFORMATIONS</span></h5>
+      </div>
+      <div class="card flex align-items-center justify-content-center flex-wrap gap-3" [style]="{'border': '1px solid orange'}">
+        <!-- Code -->
+        <div>
+          <label for="code">Code : </label>
+          <input type="text" name="code" size="20" pInputText [disabled]="true" 
+                 [(ngModel)]="declarationData.assujetti.code" />
+        </div>
+      
+        <!-- Nom -->
+        <div>
+          <label for="nom">Nom : </label>
+          <input type="text" name="nom" size="20" pInputText [disabled]="true"
+                 [(ngModel)]="declarationData.assujetti.nom" />
+        </div>
+      
+        <!-- Prénom -->
+        <div>
+          <label for="prenom">Prénom : </label>
+          <input type="text" name="prenom" size="20" pInputText [disabled]="true"
+                 [(ngModel)]="declarationData.assujetti.prenom" />  
+        </div>
+      
+        <!-- Numéro déclaration -->
+        <div>
+          <label for="numdec">Numéro déclaration : </label>
+          <input type="text" name="numdec" size="20" pInputText [disabled]="true"
+                 [(ngModel)]="declarationData.numeroDeclaration" />
+        </div>
+      
+        <!-- Type de déclaration -->
+        <div>
+          <label for="typdec">Type de déclaration : </label>
+          <input type="text" name="typdec" size="20" pInputText [disabled]="true"
+                 [(ngModel)]="declarationData.typeDeclaration" />
+        </div>
+      
+        <!-- Date Prise de Service -->
+        <div>
+          <label for="dateprisedec">Date Prise de Service : </label>
+          <input type="date" name="dateprisedec" size="50" pInputText [disabled]="true"
+                 [ngModel]="declarationData.assujetti.datePriseService | date:'yyyy-MM-dd'" />
+        </div>
+      </div>
+  </div>
+        
+  <div class="card" >
+    <h5 > <span style="color: orange; font-weight: bold;">Declaration</span></h5>
+      <p-accordion>
+        <p-accordionTab header="Foncier bati" class="line-height-3 m-0">
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton pRipple type="button" icon="pi pi-plus" 
+                    class="p-button-rounded p-button-success p-button-outlined" 
+                    (click)="isAddingFoncier = true"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash" 
+                    class="p-button-rounded p-button-danger p-button-outlined" 
+                    (click)="archiveSelectedFoncier()" 
+                    [disabled]="!selectedFonciers.length"></button>
+          </div>
+        
+          <p-table #dt [value]="foncierBati" [(selection)]="selectedFonciers" [rows]="10" [rowHover]="true"
+                   styleClass="p-datatable-gridlines" [paginator]="true" 
+                   [globalFilterFields]="['nature', 'anneeConstruction', 'modeAcquisition', 'referencesCadastrales']" 
+                   responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th></th>
+                <th>Nature</th>
+                <th>Année construction</th>
+                <th>Mode d'acquisition</th>
+                <th>Références Cadastrales</th>
+                <th>Superficie</th>
+                <th>Localisation</th>
+                <th>Type Usage</th>
+                <th>Coût Acquisition (FCFA)</th>
+                <th>Coût Investissements</th>
+              </tr>
+            </ng-template>
+        
+            <ng-template pTemplate="body" let-foncier>
+              <tr *ngIf="!isEditingFoncier || foncier.id !== foncierToEdit?.id">
+                <td><p-tableCheckbox [value]="foncier"></p-tableCheckbox></td>
+                <td>{{ foncier.nature }}</td>
+                <td>{{ foncier.anneeConstruction | date: 'yyyy' }}</td>
+                <td>{{ foncier.modeAcquisition?.libelle }}</td>
+                <td>{{ foncier.referencesCadastrales }}</td>
+                <td>{{ foncier.superficie }}</td>
+                <td>{{ foncier.localisation }}</td>
+                <td>{{ foncier.typeUsage }}</td>
+                <td>{{ foncier.coutAcquisition | number }}</td>
+                <td>{{ foncier.coutInvestissements | number }}</td>
+              </tr>
+        
+              <tr *ngIf="isEditingFoncier && foncier.id === foncierToEdit?.id">
+                <td></td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.nature" /></td>
+                <td><p-calendar [(ngModel)]="foncierToEdit.anneeConstruction" yearNavigator="true"></p-calendar></td>
+                <td>
+                  <select pInputText [(ngModel)]="foncierToEdit.modeAcquisition">
+                    <option *ngFor="let mode of modesAcquisition" [value]="mode">{{ mode.libelle }}</option>
+                  </select>
+                </td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.referencesCadastrales" /></td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.superficie" type="number" /></td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.localisation" /></td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.typeUsage" /></td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.coutAcquisition" type="number" /></td>
+                <td><input pInputText [(ngModel)]="foncierToEdit.coutInvestissements" type="number" /></td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" 
+                          class="p-button-rounded p-button-text" 
+                          (click)="saveUpdatedFoncier()"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" 
+                          class="p-button-rounded p-button-danger p-button-text" 
+                          (click)="cancelEditFoncier()"></button>
+                </td>
+              </tr>
+            </ng-template>
+        
+            <ng-template pTemplate="footer">
+              <tr *ngIf="isAddingFoncier">
+                <td></td>
+                <td><input pInputText [(ngModel)]="newFoncier.nature" required /></td>
+                <td><p-calendar [(ngModel)]="newFoncier.anneeConstruction" yearNavigator="true"></p-calendar></td>
+                <td>
+                  <select pInputText [(ngModel)]="newFoncier.modeAcquisition" required>
+                    <option *ngFor="let mode of modesAcquisition" [value]="mode">{{ mode.libelle }}</option>
+                  </select>
+                </td>
+                <td><input pInputText [(ngModel)]="newFoncier.referencesCadastrales" required /></td>
+                <td><input pInputText [(ngModel)]="newFoncier.superficie" type="number" required /></td>
+                <td><input pInputText [(ngModel)]="newFoncier.localisation" required /></td>
+                <td><input pInputText [(ngModel)]="newFoncier.typeUsage" required /></td>
+                <td><input pInputText [(ngModel)]="newFoncier.coutAcquisition" type="number" required /></td>
+                <td><input pInputText [(ngModel)]="newFoncier.coutInvestissements" type="number" required /></td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" 
+                          class="p-button-rounded p-button-text" 
+                          (click)="saveNewFoncier()"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" 
+                          class="p-button-rounded p-button-danger p-button-text" 
+                          (click)="cancelNewFoncier()"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-accordionTab>
+      
+      <p-accordionTab header="Foncier non bati" class="line-height-3 m-0">
+        <!-- Boutons d'ajout et de suppression -->
+        <div class="flex flex-wrap gap-2 mb-3">
+          <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="isAddingFoncierNonBati = true"></button>
+          <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="archiveSelectedFoncierNonBati()" [disabled]="!selectedFoncierNonBati.length"></button>
+        </div>
+        
+        <!-- Formulaire pour la saisie des données -->
+        <div *ngIf="isAddingFoncierNonBati" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+          <div class="grid">
+            <div class="col-12 md:col-4 mb-2">
+              <label for="nature" class="block mb-1">Nature</label>
+              <select pInputText id="nature" [(ngModel)]="newFoncierNonBati.nature" class="w-full">
+                <option *ngFor="let nature of natures" [ngValue]="nature">{{ nature.libelle }}</option>
+              </select>
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="modeAcquisition" class="block mb-1">Mode d'acquisition</label>
+              <select pInputText id="modeAcquisition" [(ngModel)]="newFoncierNonBati.modeAcquisition" class="w-full">
+                <option *ngFor="let mode of modesAcquisition" [ngValue]="mode">{{ mode.libelle }}</option>
+              </select>
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="ilot" class="block mb-1">Ilot</label>
+              <input pInputText id="ilot" type="text" [(ngModel)]="newFoncierNonBati.ilot" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="lotissement" class="block mb-1">Lotissement</label>
+              <input pInputText id="lotissement" type="text" [(ngModel)]="newFoncierNonBati.lotissement" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="superficie" class="block mb-1">Superficie (m²)</label>
+              <input pInputText id="superficie" type="number" [(ngModel)]="newFoncierNonBati.superficie" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="localite" class="block mb-1">Localité</label>
+              <input pInputText id="localite" type="text" [(ngModel)]="newFoncierNonBati.localite" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="localisation" class="block mb-1">Localisation</label>
+              <input pInputText id="localisation" type="text" [(ngModel)]="newFoncierNonBati.localisation" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="titrePropriete" class="block mb-1">Titre de propriété</label>
+              <input pInputText id="titrePropriete" type="text" [(ngModel)]="newFoncierNonBati.titrePropriete" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="dateAquis" class="block mb-1">Date d'acquisition</label>
+              <p-calendar id="dateAquis" [(ngModel)]="newFoncierNonBati.dateAquis" [showIcon]="true" class="w-full"></p-calendar>
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="valeurAcquisFCFA" class="block mb-1">Coût d'acquisition (FCFA)</label>
+              <input pInputText id="valeurAcquisFCFA" type="number" [(ngModel)]="newFoncierNonBati.valeurAcquisFCFA" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="coutInvestissement" class="block mb-1">Coût des investissements</label>
+              <input pInputText id="coutInvestissement" type="number" [(ngModel)]="newFoncierNonBati.coutInvestissement" class="w-full" />
+            </div>
+          </div>
+          <div class="flex justify-content-end mt-3">
+            <button pButton pRipple type="button" label="Annuler" class="p-button-outlined p-button-danger mr-2" (click)="cancelNewFoncierNonBati()"></button>
+            <button pButton pRipple type="button" label="Enregistrer" class="p-button-success" (click)="saveNewFoncierNonBati()"></button>
+          </div>
+        </div>
+        
+        <!-- Tableau pour afficher les données -->
+        <p-table #dt [value]="fonciersNonBati" [(selection)]="selectedFoncierNonBati" [rows]="10" [rowHover]="true" 
+                 styleClass="p-datatable-gridlines" [paginator]="true" 
+                 [globalFilterFields]="['nature.libelle', 'modeAcquisition.libelle', 'ilot', 'lotissement', 'superficie', 'localite', 'localisation', 'titrePropriete', 'dateAquis', 'valeurAcquisFCFA', 'coutInvestissement']" 
+                 responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th></th>
+              <th>Nature</th>
+              <th>Mode d'acquisition</th>
+              <th>Ilot/Lotissement</th>
+              <th>Superficie (m²)</th>
+              <th>Localité</th>
+              <th>Localisation</th>
+              <th>Titre de propriété</th>
+              <th>Date d'acquisition</th>
+              <th>Coût acquisition (FCFA)</th>
+              <th>Coût investissements</th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-foncier>
+            <tr *ngIf="!foncier.isEdit">
+              <td><p-tableCheckbox [value]="foncier"></p-tableCheckbox></td>
+              <td>{{ foncier.nature?.libelle }}</td>
+              <td>{{ foncier.modeAcquisition?.libelle }}</td>
+              <td>{{ foncier.ilot }}/{{ foncier.lotissement }}</td>
+              <td>{{ foncier.superficie }}</td>
+              <td>{{ foncier.localite }}</td>
+              <td>{{ foncier.localisation }}</td>
+              <td>{{ foncier.titrePropriete }}</td>
+              <td>{{ foncier.dateAquis | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ foncier.valeurAcquisFCFA | number }}</td>
+              <td>{{ foncier.coutInvestissement | number }}</td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editFoncierNonBati(foncier)"></button>
+              </td>
+            </tr>
+            
+            <tr *ngIf="foncier.isEdit">
+              <td></td>
+              <td>
+                <select pInputText [(ngModel)]="foncier.nature" class="w-full">
+                  <option *ngFor="let nature of natures" [ngValue]="nature">{{ nature.libelle }}</option>
+                </select>
+              </td>
+              <td>
+                <select pInputText [(ngModel)]="foncier.modeAcquisition" class="w-full">
+                  <option *ngFor="let mode of modesAcquisition" [ngValue]="mode">{{ mode.libelle }}</option>
+                </select>
+              </td>
+              <td>
+                <input pInputText [(ngModel)]="foncier.ilot" class="w-full mb-1" placeholder="Ilot" />
+                <input pInputText [(ngModel)]="foncier.lotissement" class="w-full" placeholder="Lotissement" />
+              </td>
+              <td><input pInputText [(ngModel)]="foncier.superficie" type="number" class="w-full" /></td>
+              <td><input pInputText [(ngModel)]="foncier.localite" class="w-full" /></td>
+              <td><input pInputText [(ngModel)]="foncier.localisation" class="w-full" /></td>
+              <td><input pInputText [(ngModel)]="foncier.titrePropriete" class="w-full" /></td>
+              <td><p-calendar [(ngModel)]="foncier.dateAquis" [showIcon]="true" class="w-full"></p-calendar></td>
+              <td><input pInputText [(ngModel)]="foncier.valeurAcquisFCFA" type="number" class="w-full" /></td>
+              <td><input pInputText [(ngModel)]="foncier.coutInvestissement" type="number" class="w-full" /></td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveEditedFoncierNonBati(foncier)"></button>
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditFoncierNonBati(foncier)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="12" class="text-center p-4">Aucun foncier non bâti enregistré</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-accordionTab>
+      <p-accordionTab header="MeubleMeublant" class="line-height-3 m-0">
+        <div class="flex flex-wrap gap-2 mb-3">
+          <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="isAddingMeubleMeublant = true"></button>
+          <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="archiveSelectedMeubleMeublant()" [disabled]="!selectedMeublesMeublant.length"></button>
+        </div>
+      
+        <!-- Formulaire pour la saisie des données -->
+        <div *ngIf="isAddingMeubleMeublant" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+          <div class="grid">
+            <div class="col-12 md:col-4 mb-2">
+              <label for="designationMeuble" class="block mb-1">Désignation</label>
+              <input pInputText id="designationMeuble" type="text" [(ngModel)]="newMeubleMeublant.designation" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="anneeAcquisitionMeuble" class="block mb-1">Année d'acquisition</label>
+              <p-calendar id="anneeAcquisitionMeuble" [(ngModel)]="newMeubleMeublant.anneeAcquisition" [showIcon]="true" class="w-full"></p-calendar>
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="valeurAcquisitionMeuble" class="block mb-1">Valeur d'acquisition</label>
+              <input pInputText id="valeurAcquisitionMeuble" type="number" [(ngModel)]="newMeubleMeublant.valeurAcquisition" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4 mb-2">
+              <label for="etatGeneralMeuble" class="block mb-1">État général</label>
+              <select pInputText id="etatGeneralMeuble" [(ngModel)]="newMeubleMeublant.etatGeneral" class="w-full">
+                <option *ngFor="let etat of etatsGeneraux" [ngValue]="etat">{{ etat.libelle }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-content-end mt-3">
+            <button pButton pRipple type="button" label="Annuler" class="p-button-outlined p-button-danger mr-2" (click)="cancelNewMeubleMeublant()"></button>
+            <button pButton pRipple type="button" label="Enregistrer" class="p-button-success" (click)="saveNewMeubleMeublant()"></button>
+          </div>
+        </div>
+      
+        <!-- Tableau pour afficher les données -->
+        <p-table #dt [value]="meublesMeublant" [(selection)]="selectedMeublesMeublant" [rows]="10" [rowHover]="true" 
+                 styleClass="p-datatable-gridlines" [paginator]="true" 
+                 [globalFilterFields]="['designation', 'anneeAcquisition', 'valeurAcquisition', 'etatGeneral.libelle']" 
+                 responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th></th>
+              <th>Désignation</th>
+              <th>Année d'acquisition</th>
+              <th>Valeur d'acquisition</th>
+              <th>État général</th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-meuble>
+            <tr *ngIf="!meuble.isEdit">
+              <td><p-tableCheckbox [value]="meuble"></p-tableCheckbox></td>
+              <td>{{ meuble.designation }}</td>
+              <td>{{ meuble.anneeAcquisition | date: 'yyyy' }}</td>
+              <td>{{ meuble.valeurAcquisition | number }}</td>
+              <td>{{ meuble.etatGeneral?.libelle }}</td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editMeubleMeublant(meuble)"></button>
+              </td>
+            </tr>
+            
+            <tr *ngIf="meuble.isEdit">
+              <td></td>
+              <td><input pInputText [(ngModel)]="meuble.designation" class="w-full" /></td>
+              <td><p-calendar [(ngModel)]="meuble.anneeAcquisition" [showIcon]="true" class="w-full"></p-calendar></td>
+              <td><input pInputText [(ngModel)]="meuble.valeurAcquisition" type="number" class="w-full" /></td>
+              <td>
+                <select pInputText [(ngModel)]="meuble.etatGeneral" class="w-full">
+                  <option *ngFor="let etat of etatsGeneraux" [ngValue]="etat">{{ etat.libelle }}</option>
+                </select>
+              </td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveEditedMeubleMeublant(meuble)"></button>
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditMeubleMeublant(meuble)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center p-4">Aucun meuble meublant enregistré</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-accordionTab>
+      <p-accordionTab header="AppareilElectroMenager" class="line-height-3 m-0">
+        <div class="flex flex-wrap gap-2 mb-3">
+          <button pButton pRipple type="button" icon="pi pi-plus" 
+                  class="p-button-rounded p-button-success p-button-outlined" 
+                  (click)="addAppareil()"></button>
+          <button pButton pRipple type="button" icon="pi pi-trash" 
+                  class="p-button-rounded p-button-danger p-button-outlined" 
+                  (click)="deleteSelectedAppareils()" 
+                  [disabled]="!selectedAppareils.length"></button>
+        </div>
+      
+        <!-- Formulaire d'ajout -->
+        <div *ngIf="isAddingAppareil" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+          <div class="grid">
+            <div class="col-12 md:col-4">
+              <label>Désignation</label>
+              <input pInputText [(ngModel)]="newAppareil.designation" class="w-full">
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Année d'acquisition</label>
+              <p-calendar [(ngModel)]="newAppareil.anneeAcquisition" 
+                         [showIcon]="true" [yearNavigator]="true" 
+                         dateFormat="yy" class="w-full"></p-calendar>
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Valeur (FCFA)</label>
+              <input type="number" pInputText [(ngModel)]="newAppareil.valeurAcquisition" class="w-full">
+            </div>
+            <div class="col-12 md:col-4">
+              <label>État général</label>
+              <p-dropdown [options]="etatsGeneraux" optionLabel="libelle" 
+                         [(ngModel)]="newAppareil.etatGeneral" class="w-full"></p-dropdown>
+            </div>
+          </div>
+          <div class="flex justify-content-end mt-3">
+            <button pButton label="Annuler" class="p-button-outlined p-button-danger mr-2" 
+                    (click)="cancelAddAppareil()"></button>
+            <button pButton label="Enregistrer" class="p-button-success" 
+                    (click)="saveAppareil()"></button>
+          </div>
+        </div>
+      
+        <!-- Tableau -->
+        <p-table [value]="appareils" [(selection)]="selectedAppareils" [rows]="10" 
+                [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" 
+                responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 3rem"></th>
+              <th>Désignation</th>
+              <th>Année acquisition</th>
+              <th>Valeur (FCFA)</th>
+              <th>État général</th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+      
+          <ng-template pTemplate="body" let-appareil>
+            <tr *ngIf="!appareil.isEdit">
+              <td><p-tableCheckbox [value]="appareil"></p-tableCheckbox></td>
+              <td>{{ appareil.designation }}</td>
+              <td>{{ appareil.anneeAcquisition | date: 'yyyy' }}</td>
+              <td>{{ appareil.valeurAcquisition | number }}</td>
+              <td>{{ appareil.etatGeneral?.libelle }}</td>
+              <td>
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                        (click)="editAppareil(appareil)"></button>
+              </td>
+            </tr>
+      
+            <!-- Mode édition -->
+            <tr *ngIf="appareil.isEdit">
+              <td></td>
+              <td><input pInputText [(ngModel)]="appareil.designation" class="w-full"></td>
+              <td>
+                <p-calendar [(ngModel)]="appareil.anneeAcquisition" [showIcon]="true" 
+                           [yearNavigator]="true" dateFormat="yy" class="w-full"></p-calendar>
+              </td>
+              <td><input type="number" pInputText [(ngModel)]="appareil.valeurAcquisition" class="w-full"></td>
+              <td>
+                <p-dropdown [options]="etatsGeneraux" optionLabel="libelle" 
+                           [(ngModel)]="appareil.etatGeneral" class="w-full"></p-dropdown>
+              </td>
+              <td>
+                <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                        (click)="saveEditedAppareil(appareil)"></button>
+                <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                        (click)="cancelEditAppareil(appareil)"></button>
+              </td>
+            </tr>
+          </ng-template>
+      
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center p-4">Aucun appareil enregistré</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-accordionTab>
+      <p-accordionTab header="DisponibiliteEnBanque" class="line-height-3 m-0">
+        <div class="flex flex-wrap gap-2 mb-3">
+          <button pButton pRipple type="button" icon="pi pi-plus" 
+                  class="p-button-rounded p-button-success p-button-outlined" 
+                  (click)="addDisponibilite()"></button>
+          <button pButton pRipple type="button" icon="pi pi-trash" 
+                  class="p-button-rounded p-button-danger p-button-outlined" 
+                  (click)="deleteSelectedDisponibilites()" 
+                  [disabled]="!selectedDisponibilites.length"></button>
+        </div>
+      
+        <!-- Formulaire d'ajout -->
+        <div *ngIf="isAddingDisponibilite" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+          <div class="grid">
+            <div class="col-12 md:col-4">
+              <label>Banque</label>
+              <input pInputText [(ngModel)]="newDisponibilite.banque" class="w-full">
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Localité</label>
+              <input pInputText [(ngModel)]="newDisponibilite.localite" class="w-full">
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Numéro de compte</label>
+              <input pInputText [(ngModel)]="newDisponibilite.numeroCompte" class="w-full">
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Type de compte</label>
+              <p-dropdown [options]="typesCompte" optionLabel="libelle" 
+                         [(ngModel)]="newDisponibilite.typeCompte" class="w-full"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Solde (FCFA)</label>
+              <p-inputNumber [(ngModel)]="newDisponibilite.soldeFCFA" mode="currency" currency="XOF" 
+                            locale="fr-FR" class="w-full"></p-inputNumber>
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Date du solde</label>
+              <p-calendar [(ngModel)]="newDisponibilite.dateSolde" [showIcon]="true" 
+                         class="w-full"></p-calendar>
+            </div>
+            <div class="col-12">
+              <label>Attestation de solde</label>
+              <input pInputText [(ngModel)]="newDisponibilite.attestationSoldeCompte" class="w-full">
+            </div>
+          </div>
+          <div class="flex justify-content-end mt-3">
+            <button pButton label="Annuler" class="p-button-outlined p-button-danger mr-2" 
+                    (click)="cancelAddDisponibilite()"></button>
+            <button pButton label="Enregistrer" class="p-button-success" 
+                    (click)="saveDisponibilite()"></button>
+          </div>
+        </div>
+      
+        <!-- Tableau -->
+        <p-table [value]="disponibilites" [(selection)]="selectedDisponibilites" [rows]="10" 
+                [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" 
+                responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 3rem"></th>
+              <th>Banque</th>
+              <th>Localité</th>
+              <th>Numéro compte</th>
+              <th>Type de compte</th>
+              <th>Solde (FCFA)</th>
+              <th>Date solde</th>
+              <th>Attestation</th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+      
+          <ng-template pTemplate="body" let-dispo>
+            <tr *ngIf="!dispo.isEdit">
+              <td><p-tableCheckbox [value]="dispo"></p-tableCheckbox></td>
+              <td>{{ dispo.banque }}</td>
+              <td>{{ dispo.localite }}</td>
+              <td>{{ dispo.numeroCompte }}</td>
+              <td>{{ dispo.typeCompte?.libelle }}</td>
+              <td>{{ dispo.soldeFCFA | number }}</td>
+              <td>{{ dispo.dateSolde | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ dispo.attestationSoldeCompte }}</td>
+              <td>
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                        (click)="editDisponibilite(dispo)"></button>
+              </td>
+            </tr>
+      
+            <!-- Mode édition -->
+            <tr *ngIf="dispo.isEdit">
+              <td></td>
+              <td><input pInputText [(ngModel)]="dispo.banque" class="w-full"></td>
+              <td><input pInputText [(ngModel)]="dispo.localite" class="w-full"></td>
+              <td><input pInputText [(ngModel)]="dispo.numeroCompte" class="w-full"></td>
+              <td>
+                <p-dropdown [options]="typesCompte" optionLabel="libelle" 
+                           [(ngModel)]="dispo.typeCompte" class="w-full"></p-dropdown>
+              </td>
+              <td>
+                <p-inputNumber [(ngModel)]="dispo.soldeFCFA" mode="currency" currency="XOF" 
+                              locale="fr-FR" class="w-full"></p-inputNumber>
+              </td>
+              <td>
+                <p-calendar [(ngModel)]="dispo.dateSolde" [showIcon]="true" class="w-full"></p-calendar>
+              </td>
+              <td><input pInputText [(ngModel)]="dispo.attestationSoldeCompte" class="w-full"></td>
+              <td>
+                <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                        (click)="saveEditedDisponibilite(dispo)"></button>
+                <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                        (click)="cancelEditDisponibilite(dispo)"></button>
+              </td>
+            </tr>
+          </ng-template>
+      
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9" class="text-center p-4">Aucune disponibilité enregistrée</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-accordionTab>
+        <p-accordionTab header="Animaux" class="line-height-3 m-0" [style.border-radius]="'12px'">
+         
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="isAddingAnimal = true"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="archiveSelectedAnimal()" [disabled]="!selectedAnimals.length"></button>
+          </div>
+
+        
+        <p-table #dt [value]="animaux" [(selection)]="selectedAnimals" [rows]="10" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['espece', 'race', 'nombreTetes', 'modeAcquisition', 'anneeAcquisition', 'valeurAcquisition', 'localite']" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th></th>
+              <th>Espèce</th>
+              <th>Race</th>
+              <th>Nombre de têtes</th>
+              <th>Mode d'acquisition</th>
+              <th>Année d'acquisition</th>
+              <th>Valeur d'acquisition</th>
+              <th>Localité</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-animal>
+            <tr *ngIf="!isEditingAnimal || animal.id !== animalToEdit?.id">
+              <td><p-tableCheckbox [value]="animal"></p-tableCheckbox></td>
+              <td>{{ animal.espece }}</td>
+              <td>{{ animal.race }}</td>
+              <td>{{ animal.nombreTetes }}</td>
+              <td>{{ animal.modeAcquisition?.libelle }}</td>
+              <td>{{ animal.anneeAcquisition | date: 'yyyy' }}</td>
+              <td>{{ animal.valeurAcquisition }}</td>
+              <td>{{ animal.localite }}</td>
+            </tr>
+            
+            <tr *ngIf="isEditingAnimal && animal.id === animalToEdit?.id">
+              <td></td>
+              <td><input pInputText [(ngModel)]="animalToEdit.espece" /></td>
+              <td><input pInputText [(ngModel)]="animalToEdit.race" /></td>
+              <td><input pInputText [(ngModel)]="animalToEdit.nombreTetes" /></td>
+              <td>
+                <select pInputText [(ngModel)]="animalToEdit.modeAcquisition">
+                  <option *ngFor="let mode of modesAcquisition" [value]="mode">{{ mode.libelle }}</option>
+                </select>
+              </td>
+
+              <td><p-calendar [(ngModel)]="animalToEdit.anneeAcquisition"></p-calendar>
+              </td>
+              <td><input pInputText [(ngModel)]="animalToEdit.valeurAcquisition" type="number" /></td>
+              <td><input pInputText [(ngModel)]="animalToEdit.localite" /></td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveUpdatedAnimal()"></button>
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditAnimal()"></button>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="footer">
+            <tr *ngIf="isAddingAnimal">
+              <td></td>
+              <td><input pInputText [(ngModel)]="newAnimal.espece" /></td>
+              <td><input pInputText [(ngModel)]="newAnimal.race" /></td>
+              <td><input pInputText [(ngModel)]="newAnimal.nombreTetes" /></td>
+              <td>
+                <select pInputText [(ngModel)]="newAnimal.modeAcquisition">
+                  <option *ngFor="let mode of modesAcquisition" [value]="mode">{{ mode.libelle }}</option>
+                </select>
+              </td>
+              <td><input pInputText [(ngModel)]="newAnimal.anneeAcquisition" type="number" /></td>
+              <td><input pInputText [(ngModel)]="newAnimal.valeurAcquisition" type="number" /></td>
+              <td><input pInputText [(ngModel)]="newAnimal.localite" /></td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveNewAnimal()"></button>
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelNewAnimal()"></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        </p-accordionTab>
+        
+        <p-accordionTab header="Emprunt" class="line-height-3 m-0">
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton pRipple type="button" icon="pi pi-plus" 
+                    class="p-button-rounded p-button-success p-button-outlined" 
+                    (click)="addEmprunt()"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash" 
+                    class="p-button-rounded p-button-danger p-button-outlined" 
+                    (click)="deleteSelectedEmprunts()" 
+                    [disabled]="!selectedEmprunts.length"></button>
+          </div>
+        
+          <!-- Formulaire d'ajout -->
+          <div *ngIf="isAddingEmprunt" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+            <div class="grid">
+              <div class="col-12 md:col-4">
+                <label>Institution financière</label>
+                <input pInputText [(ngModel)]="newEmprunt.institutionFinanciere" class="w-full">
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Numéro de compte</label>
+                <input pInputText [(ngModel)]="newEmprunt.numeroCompte" class="w-full">
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Type d'emprunt</label>
+                <p-dropdown [options]="typesEmprunt" optionLabel="libelle" 
+                           [(ngModel)]="newEmprunt.typeEmprunt" class="w-full"></p-dropdown>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Montant emprunté (FCFA)</label>
+                <p-inputNumber [(ngModel)]="newEmprunt.montantEmprunt" mode="currency" 
+                              currency="XOF" locale="fr-FR" class="w-full"></p-inputNumber>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Type de compte</label>
+                <p-dropdown [options]="typesCompte" optionLabel="libelle" 
+                           [(ngModel)]="newEmprunt.typeCompte" class="w-full"></p-dropdown>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Date première échéance</label>
+                <p-calendar [(ngModel)]="newEmprunt.datePremiereEcheance" [showIcon]="true" 
+                           class="w-full"></p-calendar>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Montant restant dû (FCFA)</label>
+                <p-inputNumber [(ngModel)]="newEmprunt.montantEnCours" mode="currency" 
+                              currency="XOF" locale="fr-FR" class="w-full"></p-inputNumber>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Date dernière échéance</label>
+                <p-calendar [(ngModel)]="newEmprunt.dateDernierEcheance" [showIcon]="true" 
+                           class="w-full"></p-calendar>
+              </div>
+              <div class="col-12">
+                <label>Tableau d'amortissement</label>
+                <input pInputText [(ngModel)]="newEmprunt.tableauAmortissement" class="w-full">
+              </div>
+            </div>
+            <div class="flex justify-content-end mt-3">
+              <button pButton label="Annuler" class="p-button-outlined p-button-danger mr-2" 
+                      (click)="cancelAddEmprunt()"></button>
+              <button pButton label="Enregistrer" class="p-button-success" 
+                      (click)="saveEmprunt()"></button>
+            </div>
+          </div>
+        
+          <!-- Tableau -->
+          <p-table [value]="emprunts" [(selection)]="selectedEmprunts" [rows]="10" 
+                  [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" 
+                  responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 3rem"></th>
+                <th>Institution</th>
+                <th>N° Compte</th>
+                <th>Type emprunt</th>
+                <th>Montant</th>
+                <th>Type compte</th>
+                <th>1ère échéance</th>
+                <th>Montant restant</th>
+                <th>Dernière échéance</th>
+                <th>Tableau</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+        
+            <ng-template pTemplate="body" let-emprunt>
+              <tr *ngIf="!emprunt.isEdit">
+                <td><p-tableCheckbox [value]="emprunt"></p-tableCheckbox></td>
+                <td>{{ emprunt.institutionFinanciere }}</td>
+                <td>{{ emprunt.numeroCompte }}</td>
+                <td>{{ emprunt.typeEmprunt?.libelle }}</td>
+                <td>{{ emprunt.montantEmprunt | number }}</td>
+                <td>{{ emprunt.typeCompte?.libelle }}</td>
+                <td>{{ emprunt.datePremiereEcheance | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ emprunt.montantEnCours | number }}</td>
+                <td>{{ emprunt.dateDernierEcheance | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ emprunt.tableauAmortissement }}</td>
+                <td>
+                  <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                          (click)="editEmprunt(emprunt)"></button>
+                </td>
+              </tr>
+        
+              <!-- Mode édition -->
+              <tr *ngIf="emprunt.isEdit">
+                <td></td>
+                <td><input pInputText [(ngModel)]="emprunt.institutionFinanciere" class="w-full"></td>
+                <td><input pInputText [(ngModel)]="emprunt.numeroCompte" class="w-full"></td>
+                <td>
+                  <p-dropdown [options]="typesEmprunt" optionLabel="libelle" 
+                             [(ngModel)]="emprunt.typeEmprunt" class="w-full"></p-dropdown>
+                </td>
+                <td>
+                  <p-inputNumber [(ngModel)]="emprunt.montantEmprunt" mode="currency" 
+                                currency="XOF" locale="fr-FR" class="w-full"></p-inputNumber>
+                </td>
+                <td>
+                  <p-dropdown [options]="typesCompte" optionLabel="libelle" 
+                             [(ngModel)]="emprunt.typeCompte" class="w-full"></p-dropdown>
+                </td>
+                <td>
+                  <p-calendar [(ngModel)]="emprunt.datePremiereEcheance" [showIcon]="true" 
+                             class="w-full"></p-calendar>
+                </td>
+                <td>
+                  <p-inputNumber [(ngModel)]="emprunt.montantEnCours" mode="currency" 
+                                currency="XOF" locale="fr-FR" class="w-full"></p-inputNumber>
+                </td>
+                <td>
+                  <p-calendar [(ngModel)]="emprunt.dateDernierEcheance" [showIcon]="true" 
+                             class="w-full"></p-calendar>
+                </td>
+                <td><input pInputText [(ngModel)]="emprunt.tableauAmortissement" class="w-full"></td>
+                <td>
+                  <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                          (click)="saveEditedEmprunt(emprunt)"></button>
+                  <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                          (click)="cancelEditEmprunt(emprunt)"></button>
+                </td>
+              </tr>
+            </ng-template>
+        
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="11" class="text-center p-4">Aucun emprunt enregistré</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-accordionTab>
+        <p-accordionTab header="Espece" class="line-height-3 m-0">
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" 
+                    (click)="addEspece()"></button>
+            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" 
+                    (click)="deleteSelectedEspeces()" [disabled]="!selectedEspeces.length"></button>
+          </div>
+        
+          <!-- Formulaire d'ajout -->
+          <div *ngIf="isAddingEspece" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+            <div class="grid">
+              <div class="col-12 md:col-4">
+                <label>Devise</label>
+                <p-dropdown [options]="devises" optionLabel="libelle" 
+                           [(ngModel)]="newEspece.devise" class="w-full"></p-dropdown>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Montant devise</label>
+                <p-inputNumber [(ngModel)]="newEspece.monnaie" class="w-full"></p-inputNumber>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Taux de change</label>
+                <p-inputNumber [(ngModel)]="newEspece.tauxChange" class="w-full"></p-inputNumber>
+              </div>
+              <div class="col-12 md:col-4">
+                <label>Date</label>
+                <p-calendar [(ngModel)]="newEspece.dateEspece" [showIcon]="true" class="w-full"></p-calendar>
+              </div>
+            </div>
+            <div class="flex justify-content-end mt-3">
+              <button pButton label="Annuler" class="p-button-outlined p-button-danger mr-2" 
+                      (click)="cancelAddEspece()"></button>
+              <button pButton label="Enregistrer" class="p-button-success" 
+                      (click)="saveEspece()"></button>
+            </div>
+          </div>
+        
+          <!-- Tableau -->
+          <p-table [value]="especes" [(selection)]="selectedEspeces" [rows]="10" 
+                  [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 3rem"></th>
+                <th>Devise</th>
+                <th>Montant</th>
+                <th>Taux change</th>
+                <th>Montant FCFA</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+        
+            <ng-template pTemplate="body" let-espece>
+              <tr *ngIf="!espece.isEdit">
+                <td><p-tableCheckbox [value]="espece"></p-tableCheckbox></td>
+                <td>{{ espece.devise?.libelle }}</td>
+                <td>{{ espece.monnaie | number }}</td>
+                <td>{{ espece.tauxChange | number }}</td>
+                <td>{{ espece.montantFCFA | number }}</td>
+                <td>{{ espece.dateEspece | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                          (click)="editEspece(espece)"></button>
+                </td>
+              </tr>
+        
+              <tr *ngIf="espece.isEdit">
+                <td></td>
+                <td>
+                  <p-dropdown [options]="devises" optionLabel="libelle" 
+                             [(ngModel)]="espece.devise" class="w-full"></p-dropdown>
+                </td>
+                <td>
+                  <p-inputNumber [(ngModel)]="espece.monnaie" class="w-full"></p-inputNumber>
+                </td>
+                <td>
+                  <p-inputNumber [(ngModel)]="espece.tauxChange" class="w-full"></p-inputNumber>
+                </td>
+                <td>
+                  <p-inputNumber [(ngModel)]="espece.montantFCFA" class="w-full"></p-inputNumber>
+                </td>
+                <td>
+                  <p-calendar [(ngModel)]="espece.dateEspece" [showIcon]="true" class="w-full"></p-calendar>
+                </td>
+                <td>
+                  <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                          (click)="saveEditedEspece(espece)"></button>
+                  <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                          (click)="cancelEditEspece(espece)"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-accordionTab>
+        <p-accordionTab header="Titres et Valeurs" class="line-height-3 m-0">
+  
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="isAddingTitre = true"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedTitres()" [disabled]="!selectedTitres.length"></button>
+          </div>
+        
+          <p-table #dt [value]="titres" [(selection)]="selectedTitres" [rows]="10" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['designationNatureAction', 'valeurEmplacement', 'emplacement', 'autrePrecision']" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th></th>
+                <th>Désignation/Nature</th>
+                <th>Valeur</th>
+                <th>Emplacement</th>
+                <th>Précisions</th>
+                <th>Date de création</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-titre>
+              <tr *ngIf="!titre.isEdit">
+                <td><p-tableCheckbox [value]="titre"></p-tableCheckbox></td>
+                <td>{{ titre.designationNatureAction }}</td>
+                <td>{{ titre.valeurEmplacement }}</td>
+                <td>{{ titre.emplacement }}</td>
+                <td>{{ titre.autrePrecision }}</td>
+                <td>{{ titre.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editTitre(titre)"></button>
+                </td>
+              </tr>
+              
+              <tr *ngIf="titre.isEdit">
+                <td></td>
+                <td><input pInputText [(ngModel)]="titre.designationNatureAction" /></td>
+                <td><input pInputText type="number" [(ngModel)]="titre.valeurEmplacement" /></td>
+                <td><input pInputText [(ngModel)]="titre.emplacement" /></td>
+                <td><input pInputText [(ngModel)]="titre.autrePrecision" /></td>
+                <td>{{ titre.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveEditedTitre(titre)"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditTitre(titre)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="footer">
+              <tr *ngIf="isAddingTitre">
+                <td></td>
+                <td><input pInputText [(ngModel)]="newTitre.designationNatureAction" /></td>
+                <td><input pInputText type="number" [(ngModel)]="newTitre.valeurEmplacement" /></td>
+                <td><input pInputText [(ngModel)]="newTitre.emplacement" /></td>
+                <td><input pInputText [(ngModel)]="newTitre.autrePrecision" /></td>
+                <td>{{ newTitre.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveTitre()"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelAddTitre()"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        
+        </p-accordionTab>
+       <!-- Ajouter après les autres accordionTabs -->
+
+<p-accordionTab header="Creance" class="line-height-3 m-0">
+  <div class="flex flex-wrap gap-2 mb-3">
+    <button pButton icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" 
+            (click)="addCreance()"></button>
+    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" 
+            (click)="deleteSelectedCreances()" [disabled]="!selectedCreances.length"></button>
+  </div>
+
+  <!-- Formulaire d'ajout -->
+  <div *ngIf="isAddingCreance" class="card p-3 mb-3" [style]="{'border': '1px solid orange'}">
+    <div class="grid">
+      <div class="col-12 md:col-4">
+        <label>Débiteur</label>
+        <input pInputText [(ngModel)]="newCreance.debiteur" class="w-full">
+      </div>
+      <div class="col-12 md:col-4">
+        <label>Montant (FCFA)</label>
+        <p-inputNumber [(ngModel)]="newCreance.montant" mode="currency" currency="XOF" 
+                      locale="fr-FR" class="w-full"></p-inputNumber>
+      </div>
+      <div class="col-12 md:col-4">
+        <label>Précisions</label>
+        <input pInputText [(ngModel)]="newCreance.autresPrecision" class="w-full">
+      </div>
+    </div>
+    <div class="flex justify-content-end mt-3">
+      <button pButton label="Annuler" class="p-button-outlined p-button-danger mr-2" 
+              (click)="cancelAddCreance()"></button>
+      <button pButton label="Enregistrer" class="p-button-success" 
+              (click)="saveCreance()"></button>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <p-table [value]="creances" [(selection)]="selectedCreances" [rows]="10" 
+          [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem"></th>
+        <th>Débiteur</th>
+        <th>Montant (FCFA)</th>
+        <th>Précisions</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-creance>
+      <tr *ngIf="!creance.isEdit">
+        <td><p-tableCheckbox [value]="creance"></p-tableCheckbox></td>
+        <td>{{ creance.debiteur }}</td>
+        <td>{{ creance.montant | number }}</td>
+        <td>{{ creance.autresPrecision }}</td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                  (click)="editCreance(creance)"></button>
+        </td>
+      </tr>
+
+      <tr *ngIf="creance.isEdit">
+        <td></td>
+        <td><input pInputText [(ngModel)]="creance.debiteur" class="w-full"></td>
+        <td>
+          <p-inputNumber [(ngModel)]="creance.montant" mode="currency" currency="XOF" 
+                        locale="fr-FR" class="w-full"></p-inputNumber>
+        </td>
+        <td><input pInputText [(ngModel)]="creance.autresPrecision" class="w-full"></td>
+        <td>
+          <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                  (click)="saveEditedCreance(creance)"></button>
+          <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                  (click)="cancelEditCreance(creance)"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-accordionTab>
+
+
+<p-accordion>
+  <!-- Section Revenu -->
+  <p-accordionTab header="Revenu" class="line-height-3 m-0">
+    <div class="flex flex-wrap gap-2 mb-3">
+      <button pButton pRipple type="button" icon="pi pi-plus" 
+              class="p-button-rounded p-button-success p-button-outlined" 
+              (click)="isAddingRevenu = true"></button>
+      <button pButton pRipple type="button" icon="pi pi-trash" 
+              class="p-button-rounded p-button-danger p-button-outlined" 
+              (click)="deleteSelectedRevenus()" 
+              [disabled]="!selectedRevenus.length"></button>
+    </div>
+
+    <p-table #dt [value]="revenus" [(selection)]="selectedRevenus" [rows]="10" 
+            [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" 
+            [globalFilterFields]="['typeRevenu', 'entite', 'valeurRevenu']" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th></th>
+          <th>Type de revenu</th>
+          <th>Entité</th>
+          <th>Valeur du revenu</th>
+          <th>Date de création</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-revenu>
+        <tr *ngIf="!revenu.isEdit">
+          <td><p-tableCheckbox [value]="revenu"></p-tableCheckbox></td>
+          <td>{{ revenu.typeRevenu?.libelle }}</td>
+          <td>{{ revenu.entite?.libelle }}</td>
+          <td>{{ revenu.valeurRevenu | currency:'FCFA' }}</td>
+          <td>{{ revenu.dateCreation | date }}</td>
+          <td>
+            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                    (click)="editRevenu(revenu)"></button>
+          </td>
+        </tr>
+        
+        <tr *ngIf="revenu.isEdit">
+          <td></td>
+          <td>
+            <select pInputText [(ngModel)]="revenu.typeRevenu">
+              <option *ngFor="let type of typesRevenu" [ngValue]="type">{{ type.libelle }}</option>
+            </select>
+          </td>
+          <td>
+            <select pInputText [(ngModel)]="revenu.entite">
+              <option *ngFor="let ent of entites" [ngValue]="ent">{{ ent.libelle }}</option>
+            </select>
+          </td>
+          <td><input pInputText type="number" [(ngModel)]="revenu.valeurRevenu" /></td>
+          <td><p-calendar [(ngModel)]="revenu.dateCreation"></p-calendar></td>
+          <td>
+            <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                    (click)="saveEditedRevenu(revenu)"></button>
+            <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                    (click)="cancelEditRevenu(revenu)"></button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="footer">
+        <tr *ngIf="isAddingRevenu">
+          <td></td>
+          <td>
+            <select pInputText [(ngModel)]="newRevenu.typeRevenu">
+              <option *ngFor="let type of typesRevenu" [ngValue]="type">{{ type.libelle }}</option>
+            </select>
+          </td>
+          <td>
+            <select pInputText [(ngModel)]="newRevenu.entite">
+              <option *ngFor="let ent of entites" [ngValue]="ent">{{ ent.libelle }}</option>
+            </select>
+          </td>
+          <td><input pInputText type="number" [(ngModel)]="newRevenu.valeurRevenu" /></td>
+          <td><p-calendar [(ngModel)]="newRevenu.dateCreation"></p-calendar></td>
+          <td>
+            <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                    (click)="saveRevenu()"></button>
+            <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                    (click)="cancelAddRevenu()"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-accordionTab>
+
+
+        <p-accordionTab header="Véhicules" class="line-height-3 m-0">
+  
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="addVehicule()"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedVehicules()" [disabled]="!selectedVehicules.length"></button>
+          </div>
+        
+          <p-table #dt [value]="vehicules" [(selection)]="selectedVehicules" [rows]="10" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['designation.libelle', 'marque.libelle', 'immatriculation', 'anneeAcquisition', 'valeurAcquisition', 'etatGeneral.libelle']" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th></th>
+                <th>Désignation</th>
+                <th>Marque</th>
+                <th>Immatriculation</th>
+                <th>Année d'acquisition</th>
+                <th>Valeur d'acquisition</th>
+                <th>État général</th>
+                <th>Date de création</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-vehicule>
+              <tr *ngIf="!vehicule.isEdit">
+                <td><p-tableCheckbox [value]="vehicule"></p-tableCheckbox></td>
+                <td>{{ vehicule.designation?.libelle }}</td>
+                <td>{{ vehicule.marque?.libelle }}</td>
+                <td>{{ vehicule.immatriculation }}</td>
+                <td>{{ vehicule.anneeAcquisition }}</td>
+                <td>{{ vehicule.valeurAcquisition }}</td>
+                <td>{{ vehicule.etatGeneral?.libelle }}</td>
+                <td>{{ vehicule.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editVehicule(vehicule)"></button>
+                </td>
+              </tr>
+              
+              <tr *ngIf="vehicule.isEdit">
+                <td></td>
+                <td>
+                  <select pInputText [(ngModel)]="vehicule.designation">
+                    <option *ngFor="let type of marquesVehicule" [ngValue]="type">{{ type.libelle }}</option>
+                  </select>
+                </td>
+                <td>
+                  <select pInputText [(ngModel)]="vehicule.marque">
+                    <option *ngFor="let marque of marquesVehicule" [ngValue]="marque">{{ marque.libelle }}</option>
+                  </select>
+                </td>
+                <td><input pInputText [(ngModel)]="vehicule.immatriculation" /></td>
+                <td><input pInputText type="number" [(ngModel)]="vehicule.anneeAcquisition" /></td>
+                <td><input pInputText type="number" [(ngModel)]="vehicule.valeurAcquisition" /></td>
+                <td>
+                  <select pInputText [(ngModel)]="vehicule.etatGeneral">
+                    <option *ngFor="let etat of etatsVehicule" [ngValue]="etat">{{ etat.libelle }}</option>
+                  </select>
+                </td>
+                <td>{{ vehicule.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveEditedVehicule(vehicule)"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditVehicule(vehicule)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="footer">
+              <tr *ngIf="isAddingVehicule">
+                <td></td>
+                <td>
+                  <select pInputText [(ngModel)]="newVehicule.designation">
+                    <option *ngFor="let type of marquesVehicule" [ngValue]="type">{{ type.libelle }}</option>
+                  </select>
+                </td>
+                <td>
+                  <select pInputText [(ngModel)]="newVehicule.marque">
+                    <option *ngFor="let marque of marquesVehicule" [ngValue]="marque">{{ marque.libelle }}</option>
+                  </select>
+                </td>
+                <td><input pInputText [(ngModel)]="newVehicule.immatriculation" /></td>
+                <td><input pInputText type="number" [(ngModel)]="newVehicule.anneeAcquisition" /></td>
+                <td><input pInputText type="number" [(ngModel)]="newVehicule.valeurAcquisition" /></td>
+                <td>
+                  <select pInputText [(ngModel)]="newVehicule.etatGeneral">
+                    <option *ngFor="let etat of etatsVehicule" [ngValue]="etat">{{ etat.libelle }}</option>
+                  </select>
+                </td>
+                <td>{{ newVehicule.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveVehicule()"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelAddVehicule()"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        
+        </p-accordionTab>
+  <!-- Section Autre bien de valeur -->
+  <p-accordionTab header="Autre bien de valeur" class="line-height-3 m-0">
+    <div class="flex flex-wrap gap-2 mb-3">
+      <button pButton pRipple type="button" icon="pi pi-plus" 
+              class="p-button-rounded p-button-success p-button-outlined" 
+              (click)="isAddingAutreBien = true"></button>
+      <button pButton pRipple type="button" icon="pi pi-trash" 
+              class="p-button-rounded p-button-danger p-button-outlined" 
+              (click)="deleteSelectedAutresBiens()" 
+              [disabled]="!selectedAutresBiens.length"></button>
+    </div>
+
+    <p-table #dt [value]="autresBiens" [(selection)]="selectedAutresBiens" [rows]="10" 
+            [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" 
+            [globalFilterFields]="['designation', 'type', 'valeurAcquisition']" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th></th>
+          <th>Désignation</th>
+          <th>Type</th>
+          <th>Localité</th>
+          <th>Valeur acquisition</th>
+          <th>Poids</th>
+          <th>Année acquisition</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-bien>
+        <tr *ngIf="!bien.isEdit">
+          <td><p-tableCheckbox [value]="bien"></p-tableCheckbox></td>
+          <td>{{ bien.designation }}</td>
+          <td>{{ bien.type?.libelle }}</td>
+          <td>{{ bien.localite }}</td>
+          <td>{{ bien.valeurAcquisition | currency:'FCFA' }}</td>
+          <td>{{ bien.poid }}</td>
+          <td>{{ bien.anneeAcquis | date:'yyyy' }}</td>
+          <td>
+            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" 
+                    (click)="editAutreBien(bien)"></button>
+          </td>
+        </tr>
+        
+        <tr *ngIf="bien.isEdit">
+          <td></td>
+          <td><input pInputText [(ngModel)]="bien.designation" /></td>
+          <td>
+            <select pInputText [(ngModel)]="bien.type">
+              <option *ngFor="let type of typesBien" [ngValue]="type">{{ type.libelle }}</option>
+            </select>
+          </td>
+          <td><input pInputText [(ngModel)]="bien.localite" /></td>
+          <td><input pInputText type="number" [(ngModel)]="bien.valeurAcquisition" /></td>
+          <td><input pInputText type="number" [(ngModel)]="bien.poid" /></td>
+          <td><input pInputText type="number" [(ngModel)]="bien.anneeAcquis" /></td>
+          <td>
+            <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                    (click)="saveEditedAutreBien(bien)"></button>
+            <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                    (click)="cancelEditAutreBien(bien)"></button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="footer">
+        <tr *ngIf="isAddingAutreBien">
+          <td></td>
+          <td><input pInputText [(ngModel)]="newAutreBien.designation" /></td>
+          <td>
+            <select pInputText [(ngModel)]="newAutreBien.type">
+              <option *ngFor="let type of typesBien" [ngValue]="type">{{ type.libelle }}</option>
+            </select>
+          </td>
+          <td><input pInputText [(ngModel)]="newAutreBien.localite" /></td>
+          <td><input pInputText type="number" [(ngModel)]="newAutreBien.valeurAcquisition" /></td>
+          <td><input pInputText type="number" [(ngModel)]="newAutreBien.poid" /></td>
+          <td><input pInputText type="number" [(ngModel)]="newAutreBien.anneeAcquis" /></td>
+          <td>
+            <button pButton icon="pi pi-check" class="p-button-rounded p-button-text" 
+                    (click)="saveAutreBien()"></button>
+            <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                    (click)="cancelAddAutreBien()"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-accordionTab>
+</p-accordion>
+        <p-accordionTab header="Autre Dette" class="line-height-3 m-0">
+  
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="isAddingAutreDette = true"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedAutresDettes()" [disabled]="!selectedAutresDettes.length"></button>
+          </div>
+        
+          <p-table #dt [value]="autresDettes" [(selection)]="selectedAutresDettes" [rows]="10" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['creancier', 'montant', 'autresPrecision']" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th></th>
+                <th>Créancier</th>
+                <th>Montant</th>
+                <th>Justificatif</th>
+                <th>Précisions</th>
+                <th>Date de création</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-dette>
+              <tr *ngIf="!dette.isEdit">
+                <td><p-tableCheckbox [value]="dette"></p-tableCheckbox></td>
+                <td>{{ dette.creancier }}</td>
+                <td>{{ dette.montant }}</td>
+                <td>{{ dette.pathJustificatif }}</td>
+                <td>{{ dette.autresPrecision }}</td>
+                <td>{{ dette.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editAutreDette(dette)"></button>
+                </td>
+              </tr>
+              
+              <tr *ngIf="dette.isEdit">
+                <td></td>
+                <td><input pInputText [(ngModel)]="dette.creancier" /></td>
+                <td><input pInputText [(ngModel)]="dette.montant" type="number" /></td>
+                <td><input pInputText [(ngModel)]="dette.pathJustificatif" /></td>
+                <td><input pInputText [(ngModel)]="dette.autresPrecision" /></td>
+                <td>{{ dette.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveEditedAutreDette(dette)"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditAutreDette(dette)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="footer">
+              <tr *ngIf="isAddingAutreDette">
+                <td></td>
+                <td><input pInputText [(ngModel)]="newAutreDette.creancier" /></td>
+                <td><input pInputText [(ngModel)]="newAutreDette.montant" type="number" /></td>
+                <td><input pInputText [(ngModel)]="newAutreDette.pathJustificatif" /></td>
+                <td><input pInputText [(ngModel)]="newAutreDette.autresPrecision" /></td>
+                <td>{{ newAutreDette.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveAutreDette()"></button>
+                  <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelAddAutreDette()"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        
+        </p-accordionTab>
+        
+
+      </p-accordion>
+</div>
+    
+</div>
