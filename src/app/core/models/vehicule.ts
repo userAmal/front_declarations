@@ -13,5 +13,8 @@ export interface Vehicule {
     isSynthese: boolean;
     idDeclaration: Declaration;
     isEdit: boolean;  
-
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
   }

@@ -1,24 +1,22 @@
 import { Declaration } from './declaration';
 import { Vocabulaire } from './vocabulaire';
-
-export class FoncierBati {
-  isSelected: boolean;
+export interface FoncierBati {
   id?: number;
-  nature?: Vocabulaire;
-  anneeConstruction?: Date;
-  modeAcquisition?: Vocabulaire;
-  referencesCadastrales?: string;
-  superficie?: number;
-  localite?: string;
-  localisation?:string
-  typeUsage?: Vocabulaire;
-  coutAcquisitionFCFA?: number;
-  coutInvestissements?: number;
+  nature: Vocabulaire;
+  anneeConstruction: number | Date; // Accepte les deux types
+  modeAcquisition: Vocabulaire;
+  referencesCadastrales: string;
+  superficie: string;
+  localis: Vocabulaire;
+  typeUsage: Vocabulaire;
+  coutAcquisitionFCFA: number;
+  coutInvestissements: number;
   dateCreation: Date;
-  declaration: Declaration;
-  isEdit: boolean;
-
-
-
+  isSynthese: boolean;
+  idDeclaration: Declaration;
+  fileName?: string;
+  fileType?: string;
+  fileDownloadUri?: string;
+  fileData?: Blob;
 }
 

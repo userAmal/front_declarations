@@ -14,12 +14,15 @@ export class FoncierNonBati {
   localite: string;
   localisation: string
   titrePropriete: string;
-  dateAquis: Date;
+  dateAcquis: Date;
   valeurAcquisFCFA: number;
   coutInvestissement: number;
   dateCreation: Date;
   declaration: Declaration;
   isEdit: boolean;
-
+  fileName?: string;
+  fileType?: string;
+  fileDownloadUri?: string;
+  fileData?: Blob;
 }
 

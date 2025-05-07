@@ -34,7 +34,11 @@ import { PanelModule } from 'primeng/panel';
 import { ScrollTopModule } from 'primeng/scrolltop';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
-
+import { LOCALE_ID } from '@angular/core';
+import { FileUploadModule } from 'primeng/fileupload';
+import { DialogModule } from 'primeng/dialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 @NgModule({
     declarations: [
         AppComponent, NotfoundComponent,WelcomeComponent,DeclarationComponent
@@ -63,18 +67,23 @@ import { CalendarModule } from 'primeng/calendar';
         PanelModule,
         ScrollTopModule,
 
+        FileUploadModule,
+        DialogModule,
+
 
 
        // Nécessaire pour ngModel
     ReactiveFormsModule, // Nécessaire pour formGroup
     DropdownModule,      // Module pour p-dropdown
     CalendarModule,      // Module pour p-calendar
-  
+    ConfirmDialogModule // Corrected module name here
+
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         CountryService, CustomerService, EventService, IconService, NodeService,
-        PhotoService, ProductService
+        PhotoService, ProductService,  MessageService ,  ConfirmationService,  { provide: LOCALE_ID, useValue: 'fr' }
+
     ],
     bootstrap: [AppComponent]
 })

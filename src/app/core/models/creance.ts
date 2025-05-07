@@ -8,4 +8,8 @@ export class Creance{
     autresPrecision?: string;  
     declaration?: Declaration; 
     isEdit: boolean;   
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }   

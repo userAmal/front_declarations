@@ -4,7 +4,7 @@ import { Vocabulaire } from './vocabulaire';
 export class Emprunt{
     isSelected: boolean;
     id?: number;
-    institutionFinanciere?: string;
+    institutionFinanciere?: Vocabulaire;
     numeroCompte?: string;
     typeEmprunt?: Vocabulaire;
     montantEmprunt?: number;
@@ -16,4 +16,8 @@ export class Emprunt{
     declaration?: Declaration;
     isEdit: boolean;  
     tableauAmortissement?: string;
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }

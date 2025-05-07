@@ -9,10 +9,14 @@ export class AutreBienDeValeur{
     localite?: string;
     anneeAcquis?: Date;
     valeurAcquisition?: number;
-    autresPrecisions?: string;
+    autrePrecisions?: string;
     type?: Vocabulaire;
     poid?:number;
     dateCreation?: Date;
     declaration?: Declaration;
     isEdit: boolean;
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }

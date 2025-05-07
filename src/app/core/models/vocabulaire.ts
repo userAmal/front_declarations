@@ -4,7 +4,7 @@ export class Vocabulaire {
     isSelected: boolean;
     id?: number;
     code?: string;
-    libelle?: string;
+    intitule?: string;
     typevocabulaire?: TypeVocabulaire;
     isEdit: boolean;
 

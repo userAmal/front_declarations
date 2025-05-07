@@ -11,8 +11,12 @@ export class Animaux{
     modeAcquisition?: Vocabulaire;
     anneeAcquisition?: Date;
     valeurAcquisition?: number;
-    localite?: string;
+    localiteanimalex?: Vocabulaire;
     dateCreation?: string;
     declaration?: Declaration;
     isEdit: boolean;
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }
