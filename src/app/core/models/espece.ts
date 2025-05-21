@@ -1,11 +1,11 @@
 import { Vocabulaire } from './vocabulaire';
 import { Declaration } from "./declaration";
 
-export class Espece{
+export class Espece {
     isSelected: boolean;
     id?: number;
     monnaie?: number;
-    devise?: Vocabulaire;
+    devise?: number; 
     tauxChange?: number;
     montantFCFA?: number;
     montantTotalFCFA?: number;
@@ -17,4 +17,5 @@ export class Espece{
     fileType?: string;
     fileDownloadUri?: string;
     fileData?: Blob;
-}     
+
+}

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, of, throwError } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FoncierBati } from '../models/foncierBati';
@@ -61,7 +61,6 @@ getFonciersBatiByDeclaration(declarationId: number): Observable<FoncierBati[]> {
   return this.http.get<FoncierBati[]>(`${this.apiUrl}/foncier-bati/by-declaration/${declarationId}`);
 }
 updateFoncierBati(id: number, foncier: any): Observable<any> {
-  // S'assurer que l'ID est également dans le corps
   const foncierWithId = { ...foncier, id: id };
   return this.http.put(`${this.apiUrl}/foncier-bati/${id}`, foncierWithId);
 }
@@ -69,12 +68,10 @@ deleteFoncierBati(id: number): Observable<any> {
   return this.http.delete(`${this.apiUrl}/foncier-bati/${id}`);
 }
 uploadFoncierDocument(foncierId: number, file: File): Observable<any> {
-  // Vérification de la taille du fichier côté client aussi
   if (file.size > 10 * 1024 * 1024) {
     return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
   }
   
-  // Vérification de l'extension
   const extension = file.name.split('.').pop()?.toLowerCase();
   if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
     return throwError(() => new Error('Type de fichier non supporté'));
@@ -87,7 +84,6 @@ uploadFoncierDocument(foncierId: number, file: File): Observable<any> {
     formData
   ).pipe(
     catchError(err => {
-      // Traitement des erreurs spécifiques
       return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
     })
   );
@@ -99,6 +95,13 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
     { responseType: 'blob' }
   )
 }
+getByNatureId(natureId: number): Observable<FoncierBati[]> {
+  return this.http.get<FoncierBati[]>(`${this.apiUrl}/by-nature/${natureId}`);
+}
+
+
+
+
 
   createFoncierNonBati(foncier: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/foncier-non-bati`, foncier);
@@ -112,14 +115,14 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
   getFonciersNonBatiByDeclaration(declarationId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/foncier-non-bati/by-declaration/${declarationId}`);
   }
+  getByNatureIdFND(natureId: number): Observable<FoncierBati[]> {
+    return this.http.get<FoncierBati[]>(`${this.apiUrl}/by-natureFNB/${natureId}`);
+  }
   uploadFoncierNonbatiDocument(foncierId: number, file: File): Observable<any> {
-    // Vérification de la taille du fichier côté client aussi
     if (file.size > 10 * 1024 * 1024) {
       return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
     }
-    
-    // Vérification de l'extension
-    const extension = file.name.split('.').pop()?.toLowerCase();
+        const extension = file.name.split('.').pop()?.toLowerCase();
     if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
       return throwError(() => new Error('Type de fichier non supporté'));
     }
@@ -131,7 +134,6 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
       formData
     ).pipe(
       catchError(err => {
-        // Traitement des erreurs spécifiques
         return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
       })
     );
@@ -143,6 +145,10 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
       { responseType: 'blob' }
     )
   }
+
+
+
+
 
   createMeubleMeublant(foncier: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/meubles-meublants`, foncier);
@@ -160,13 +166,11 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
     return this.http.get<any[]>(`${this.apiUrl}/meubles-meublants/by-declaration/${declarationId}`);
   }
 
-  uploadMeublerDocument(foncierId: number, file: File): Observable<any> {
-    // Vérification de la taille du fichier côté client aussi
+  uploadMeubleDocument(foncierId: number, file: File): Observable<any> {
     if (file.size > 10 * 1024 * 1024) {
       return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
     }
     
-    // Vérification de l'extension
     const extension = file.name.split('.').pop()?.toLowerCase();
     if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
       return throwError(() => new Error('Type de fichier non supporté'));
@@ -179,7 +183,6 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
       formData
     ).pipe(
       catchError(err => {
-        // Traitement des erreurs spécifiques
         return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
       })
     );
@@ -191,20 +194,62 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
       { responseType: 'blob' }
     )
   }
+  searchMeublesMeublantsByDesignation(designation: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/meubles-meublants/search`, {
+      params: { designation }
+    });
+  }
+  
+
 
 
   createAppareil(appareil: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/appareils-electromenagers`, appareil);
   }
   getAppareilsByDeclaration(declarationId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/by-declaration/${declarationId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/appareils-electromenagers/by-declaration/${declarationId}`);
   }
   updateAppareil(id: number, appareil: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, appareil);
+    return this.http.put(`${this.apiUrl}/appareils-electromenagers/${id}`, appareil);
   }
   deleteAppareil(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/appareils-electromenagers/${id}`);
   }
+  uploadAppareilDocument(appareilId: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+    
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/appareils-electromenagers/upload/${appareilId}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadAppareilDocument(appareilId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/appareils-electromenagers/download/${appareilId}`,
+      { responseType: 'blob' }
+    )
+  }
+  searchAppareilsByDesignation(designation: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/appareils-electromenagers/search`, {
+      params: { designation }
+    });
+  }
+  
+
 
 
   createAnimal(foncier: any): Observable<any> {
@@ -219,32 +264,41 @@ downloadFoncierDocument(foncierId: number): Observable<Blob> {
   getAnimauxByDeclaration(declarationId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/animaux/by-declaration/${declarationId}`);
   }
+  uploadAnimalDocument(AnimalId: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+    
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/animaux/upload/${AnimalId}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadAnimalDocument(AnimalId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/animaux/download/${AnimalId}`,
+      { responseType: 'blob' }
+    )
+  }
+  searchAnimaux(keyword: string): Observable<any[]> {
+    const params = new HttpParams().set('keyword', keyword);
+    return this.http.get<any[]>(`${this.apiUrl}/animaux/search-by-especes`, { params });
+  }
+  
 
-// These methods should be added to your declaration.service.ts file
 
-/**
- * Uploads a document for a specific animal
- * @param animalId ID of the animal
- * @param formData FormData containing the file to upload
- * @returns Observable with the upload response
- */
-uploadAnimalDocument(animalId: number, formData: FormData): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/animaux/upload/${animalId}`, formData, {
-    reportProgress: true,
-    observe: 'events'
-  });
-}
-
-/**
- * Downloads a document for a specific animal
- * @param animalId ID of the animal
- * @returns Observable with the file as Blob
- */
-downloadAnimalDocument(animalId: number): Observable<Blob> {
-  return this.http.get(`${this.apiUrl}/animaux/download/${animalId}`, {
-    responseType: 'blob'
-  });
-}
 
   createEmprunt(emprunt: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/emprunts`, emprunt);
@@ -258,28 +312,89 @@ updateEmprunt(id: number, emprunt: any): Observable<any> {
 deleteEmprunt(id: number): Observable<void> {
   return this.http.delete<void>(`${this.apiUrl}/emprunts/${id}`);
 }
+getEmpruntsByInstitution(vocabulaireId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/emprunts/by-institution/${vocabulaireId}`);
+}
+uploadEmpruntDocument(EmpruntId: number, file: File): Observable<any> {
+  if (file.size > 10 * 1024 * 1024) {
+    return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+  }
+  
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+    return throwError(() => new Error('Type de fichier non supporté'));
+  }
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  return this.http.post<any>(
+    `${this.apiUrl}/emprunts/upload/${EmpruntId}`,
+    formData
+  ).pipe(
+    catchError(err => {
+      return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+    })
+  );
+}
 
+downloadEmpruntNonBatiDocument(EmpruntId: number): Observable<Blob> {
+  return this.http.get(
+    `${this.apiUrl}/emprunts/download/${EmpruntId}`,
+    { responseType: 'blob' }
+  )
+}
 
 
 
   createEspece(espece: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, espece);
+    return this.http.post(`${this.apiUrl}/especes`, espece);
   }
   getEspecesByDeclaration(declarationId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/by-declaration/${declarationId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/especes/by-declaration/${declarationId}`);
   }
   updateEspece(id: number, espece: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, espece);
+    return this.http.put(`${this.apiUrl}/especes/${id}`, espece);
   }
   deleteEspece(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/especes/${id}`);
+  }
+getEspecesByMonnaie(monnaie: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/especes/by-monnaie/${monnaie}`);
+}
+  uploadEspecesDocument(id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/especes/upload/${id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadEspecesDocument(id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/especes/download/${id}`,
+      { responseType: 'blob' }
+    )
   }
 
 
 
 
-  createTitres(foncier: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/titres`, foncier);
+
+  createTitres(id: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/titres`, id);
   }
   updateTitres(id: number, foncier: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/titres/${id}`, foncier);
@@ -290,6 +405,37 @@ deleteEmprunt(id: number): Observable<void> {
   getTitresByDeclaration(declarationId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/titres/by-declaration/${declarationId}`);
   }
+getTitresByDesignation(designationId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/titres/by-designation/${designationId}`);
+}
+  uploadTitresDocument(id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/titres/upload/${id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadTitresDocument(id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/titres/download/${id}`,
+      { responseType: 'blob' }
+    )
+  }
+
 
 
 
@@ -305,6 +451,38 @@ deleteEmprunt(id: number): Observable<void> {
   getCreancesByDeclaration(declarationId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/les-creances/by-declaration/${declarationId}`);
   }
+getCreancesByDebiteur(debiteurId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/les-creances/by-debiteur/${debiteurId}`);
+}
+  uploadCreanceDocument(Id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/les-creances/upload/${Id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadCreanceDocument(Id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/les-creances/download/${Id}`,
+      { responseType: 'blob' }
+    )
+  }
+
+
 
 
  createRevenu(revenu: any): Observable<any> {
@@ -319,6 +497,40 @@ deleteRevenu(id: number): Observable<void> {
 getRevenusByDeclaration(declarationId: number): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/revenus/by-declaration/${declarationId}`);
 }
+getRevenusByAutresRevenus(autresRevenusId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/revenus/by-autres-revenus/${autresRevenusId}`);
+}
+  uploadRevenusDocument(Id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/revenus/upload/${Id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadRevenusDocument(Id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/foncier-non-bati/download/${Id}`,
+      { responseType: 'blob' }
+    )
+  }
+
+
+
+
 
 
  createVehicule(vehicule: any): Observable<any> {
@@ -333,6 +545,37 @@ deleteVehicule(id: number): Observable<void> {
 getVehiculesByDeclaration(declarationId: number): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/vehicules/by-declaration/${declarationId}`);
 }
+getVehiculesByDesignation(designationId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/vehicules/designation/${designationId}`);
+}
+  uploadVehiculesDocument(Id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/vehicules/upload/${Id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadVehiculesDocument(Id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/vehicules/download/${Id}`,
+      { responseType: 'blob' }
+    )
+  }
+
 
 
  createAutreBienDeValeur(data: any): Observable<any> {
@@ -348,6 +591,36 @@ deleteAutreBienDeValeur(id: number): Observable<void> {
 getAutresBiensDeValeurByDeclaration(declarationId: number): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/autres-biens-de-valeur/by-declaration/${declarationId}`);
 }
+getAutresBiensDeValeurByDesignation(designationId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/autres-biens-de-valeur/by-designation/${designationId}`);
+}
+  uploadAutresBiensDeValeurDocument(Id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/autres-biens-de-valeur/upload/${Id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadAutresBiensDeValeurDocument(Id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/autres-biens-de-valeur/download/${Id}`,
+      { responseType: 'blob' }
+    )
+  }
 
 
 
@@ -360,25 +633,90 @@ createAutreDette(dette: any): Observable<any> {
   return this.http.post(`${this.apiUrl}/autres-dettes`, dette);
 }
 updateAutreDette(id: number, dette: any): Observable<any> {
-  return this.http.put<any>(`${this.apiUrl}/${id}`, dette);
+  return this.http.put<any>(`${this.apiUrl}/autres-dettes/${id}`, dette);
 }
 deleteAutreDette(id: number): Observable<void> {
-  return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  return this.http.delete<void>(`${this.apiUrl}/autres-dettes/${id}`);
+}
+getAutresDettesByCreancier(creancierId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/autres-dettes/by-creancier/${creancierId}`);
+}
+  uploadAutresDettesDocument(Id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/autres-dettes/upload/${Id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadAutresDettesDocument(Id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/autres-dettes/download/${Id}`,
+      { responseType: 'blob' }
+    )
+  }
+
+
+
+getDisponibilitesByDeclaration(declarationId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/disponibilites-en-banque/by-declaration/${declarationId}`);
 }
 
+getDisponibilitesByBanque(banqueId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/disponibilites-en-banque/by-banque/${banqueId}`);
+}
+
+createDisponibilite(disponibilite: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/disponibilites-en-banque`, disponibilite);
+}
+
+updateDisponibilite(id: number, disponibilite: any): Observable<any> {
+  return this.http.put(`${this.apiUrl}/disponibilites-en-banque/${id}`, disponibilite);
+}
+
+deleteDisponibilite(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/disponibilites-en-banque/${id}`);
+}
+  uploadDisponibiliteDocument(Id: number, file: File): Observable<any> {
+    if (file.size > 10 * 1024 * 1024) {
+      return throwError(() => new Error('La taille du fichier ne doit pas dépasser 10MB'));
+    }
+        const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'].includes(extension || '')) {
+      return throwError(() => new Error('Type de fichier non supporté'));
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(
+      `${this.apiUrl}/disponibilites-en-banque/upload/${Id}`,
+      formData
+    ).pipe(
+      catchError(err => {
+        return throwError(() => new Error(err.error?.message || 'Erreur lors de l\'upload'));
+      })
+    );
+  }
+  
+  downloadDisponibiliteDocument(Id: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/disponibilites-en-banque/download/${Id}`,
+      { responseType: 'blob' }
+    )
+  }
 
 
-
-  getDisponibilitesByDeclaration(declarationId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/disponibilites-en-banque/by-declaration/${declarationId}`);
-  }
-  createDisponibilite(disponibilite: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/disponibilites-en-banque`, disponibilite);
-  }
-  updateDisponibilite(id: number, disponibilite: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/disponibilites-en-banque/${id}`, disponibilite);
-  }
-  deleteDisponibilite(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/disponibilites-en-banque/${id}`);
-  }
 }
