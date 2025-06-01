@@ -4,6 +4,8 @@ import { NotfoundComponent } from './demo/components/notfound/notfound.component
 import { AppLayoutComponent } from "./layout/app.layout.component";
 import { WelcomeComponent } from './core/pages/welcome/welcome.component';
 import { DeclarationComponent } from './core/pages/declaration/declaration.component';
+import { AccessDeniedComponent } from './core/pages/access-denied/access-denied.component';
+import { ConfirmationComponent } from './core/pages/confirmation/confirmation.component';
 
 @NgModule({
     imports: [
@@ -22,7 +24,16 @@ import { DeclarationComponent } from './core/pages/declaration/declaration.compo
             },
             { path: 'welcome', component: WelcomeComponent },
             { path: 'declaration', component: DeclarationComponent },
-
+                    { 
+                        path: 'confirmation', 
+                        component: ConfirmationComponent,
+                        data: { requiresTokenValidation: false } 
+                    },
+                                { 
+                path: 'access-denied', 
+                component: AccessDeniedComponent,
+                data: { requiresTokenValidation: false } 
+            },
             { path: 'auth', loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule) },
             { path: 'landing', loadChildren: () => import('./demo/components/landing/landing.module').then(m => m.LandingModule) },
             { path: 'notfound', component: NotfoundComponent },

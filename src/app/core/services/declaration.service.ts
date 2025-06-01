@@ -9,18 +9,19 @@ import { Vocabulaire } from '../models/vocabulaire';
   providedIn: 'root'
 })
 export class DeclarationService {
-  private apiUrl = 'http://localhost:8084/api';
+ private apiUrl = 'http://localhost:8084/api';
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
   ) {}
-
-  getDeclarationByToken(): Observable<any> {
+ getDeclarationByToken(): Observable<any> {
     let token: string | null = null;
-        token = new URLSearchParams(window.location.search).get("token");
-        if (!token) {
+    
+    // Récupérer le token depuis l'URL
+    token = new URLSearchParams(window.location.search).get("token");
+    if (!token) {
       const hashFragment = window.location.hash;
       const queryIndex = hashFragment.indexOf('?');
       
@@ -33,18 +34,75 @@ export class DeclarationService {
     console.log("Token récupéré:", token);
     
     if (!token) {
-      throw new Error("Token introuvable dans l'URL");
+      return throwError(() => new Error("Token introuvable dans l'URL"));
     }
     
+    // Stocker le token pour l'utiliser lors de l'enregistrement
+    sessionStorage.setItem('declarationToken', token);
+    
     return this.http.get(`${this.apiUrl}/assujetti/declaration/access`, {
-        params: { token }
-      });
+      params: { token }
+    }).pipe(
+      catchError(error => {
+        console.error('Erreur lors de la vérification du token:', error);
+        
+        // Rediriger vers la page d'accès refusé selon le type d'erreur
+        if (error.status === 401) {
+          this.router.navigate(['/access-denied'], {
+            queryParams: { 
+              message: error.error?.message || 'Votre lien d\'accès a expiré ou est invalide'
+            }
+          });
+        }
+        
+        return throwError(() => error);
+      })
+    );
+  }
+
+  enregistrerDeclaration(declarationId: string): Observable<any> {
+    // Récupérer le token stocké
+    const token = sessionStorage.getItem('declarationToken');
+    
+    if (!token) {
+      return throwError(() => new Error("Token manquant"));
+    }
+    
+    // Utiliser le token dans l'URL comme paramètre de requête
+    const params = new HttpParams().set('token', token);
+    
+    return this.http.post(`${this.apiUrl}/declarations/${declarationId}/enregistrer`, {}, {
+      params: params
+    }).pipe(
+      catchError(error => {
+        console.error('Erreur lors de l\'enregistrement:', error);
+        
+        // Ne rediriger automatiquement que pour certaines erreurs spécifiques
+        if (error.status === 401 && error.error?.alreadySubmitted) {
+          this.router.navigate(['/access-denied'], {
+            queryParams: { 
+              message: 'Cette déclaration a déjà été soumise',
+              alreadySubmitted: 'true'
+            }
+          });
+        } else if (error.status === 401 && error.error?.expired) {
+          this.router.navigate(['/access-denied'], {
+            queryParams: { 
+              message: 'Votre lien d\'accès a expiré',
+              expired: 'true'
+            }
+          });
+        }
+        
+        // Toujours propager l'erreur pour que le composant puisse la gérer
+        return throwError(() => error);
+      })
+    );
   }
 
   getDeclarationDetails(declarationId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/declarations/${declarationId}`);
   }
-
 getAllTypeVocabulaire(): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/type-vocabulaire`);
 }

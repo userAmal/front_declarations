@@ -45,9 +45,9 @@ registerLocaleData(localeFr);
 })
 
 export class DeclarationComponent {
-  declarationId: string | null = null;
+declarationId: string | null = null;
   loading = true;
-  
+  saving = false; // Nouveau flag pour le bouton d'enregistrement
   error: string | null = null;
   declarationData: any = {
     assujetti: {
@@ -59,15 +59,14 @@ export class DeclarationComponent {
     numeroDeclaration: '',
     typeDeclaration: ''
   };
+
   constructor(
     private declarationService: DeclarationService,
     private route: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
-      private confirmationService: ConfirmationService
-
+    private confirmationService: ConfirmationService
   ) {}
-
 
   ngOnInit(): void {
     this.loadTypeVocabulaires();
@@ -82,33 +81,101 @@ export class DeclarationComponent {
       }
     });
   }
- 
-  
+
   private processToken(): void {
     try {
-      this.declarationService.getDeclarationByToken().subscribe(
-        data => {
-          this.declarationId = data.toString();
-          console.log("ID de la déclaration:", this.declarationId);
-          this.getDeclarationDetails();
-
-        },
-        error => {
-          console.error("Erreur lors de la récupération de l'ID:", error);
-          if (error.error) {
-            console.error("Détails de l'erreur:", error.error);
+      this.declarationService.getDeclarationByToken().subscribe({
+        next: (data) => {
+          console.log("Réponse complète:", data);
+          
+          // Extraire l'ID de la déclaration selon la structure de réponse
+          if (data && data.declarationId) {
+            this.declarationId = data.declarationId.toString();
+          } else if (typeof data === 'number') {
+            this.declarationId = data.toString();
+          } else if (typeof data === 'string') {
+            this.declarationId = data;
           }
-          this.error = "Impossible de valider votre accès. Veuillez vérifier le lien dans votre email.";
+          
+          console.log("ID de la déclaration:", this.declarationId);
+          
+          if (this.declarationId) {
+            this.getDeclarationDetails();
+          } else {
+            console.error("Impossible d'extraire l'ID de la déclaration");
+            this.error = "Erreur lors de la récupération des données de déclaration";
+            this.loading = false;
+          }
+        },
+        error: (error) => {
+          console.error("Erreur lors de la récupération de l'ID:", error);
+          this.error = "Impossible de valider votre accès.";
           this.loading = false;
         }
-      );
+      });
       
     } catch (e) {
       console.error("Exception:", e);
       this.error = "Token manquant dans l'URL. Veuillez utiliser le lien complet fourni dans votre email.";
       this.loading = false;
+      
+      this.router.navigate(['/access-denied'], {
+        queryParams: { 
+          message: 'Token manquant dans l\'URL. Veuillez utiliser le lien complet fourni dans votre email.'
+        }
+      });
     }
   }
+
+  saveDeclaration() {
+    if (!this.declarationId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'ID de déclaration manquant'
+      });
+      return;
+    }
+
+    // Activer le flag de sauvegarde
+    this.saving = true;
+
+    this.declarationService.enregistrerDeclaration(this.declarationId).subscribe({
+      next: (response: any) => {
+        console.log('Réponse d\'enregistrement:', response);
+        
+        // Nettoyer le token du sessionStorage immédiatement
+        sessionStorage.removeItem('declarationToken');
+        
+        // Redirection directe vers la page de confirmation avec les données
+        this.router.navigate(['/confirmation'], {
+          state: {
+            message: response.message,
+            etat: response.etat,
+            declarationId: response.declarationId,
+            pdfGenerated: response.pdfGenerated
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'enregistrement:', error);
+        this.saving = false;
+        
+        // Afficher le message d'erreur seulement si pas de redirection automatique
+        if (error.status !== 401) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: error.error?.error || error.message || 'Une erreur est survenue lors de l\'enregistrement'
+          });
+        }
+      },
+      complete: () => {
+        this.saving = false;
+      }
+    });
+  }
+
 
   getDeclarationDetails(): void {
     if (!this.declarationId) {
@@ -242,22 +309,7 @@ autresRevenus: Vocabulaire[] = [];
       return vocabulaire?.intitule || '';
   }
 
-  saveDeclaration() {
-    //this.saveFonciersNonBatiDeclaration();
-    //this.saveFonciersBatiDeclaration();
-    //this.saveMeublesMeublantsDeclaration();
-    //this.saveAppareilsDeclaration();
-    //this.saveAnimauxDeclaration();
-    //this.saveEmpruntsDeclaration();
-    //this.saveEspecesDeclaration();
-    //this.saveTitresDeclaration();
-    //this.saveCreancesDeclaration();
-    //this.saveRevenusDeclaration();
-    //this.saveVehiculesDeclaration();
-    //this.saveAutresBiensDeclaration();
-    //this.saveAutresDettes();
-   //this.saveDisponibilitesDeclaration();
-  }
+
 
 
 
