@@ -281,10 +281,10 @@ typesTerrain: Vocabulaire[] = [];
                   { name: 'justificatifs', intitule: 'Justificatifs dettes' },
                   { name: 'autresPrecision', intitule: 'Autres précisions créances' },
                   { name: 'banques', intitule: 'Banques' },
-                    { name: 'carburant', intitule: 'carburant' },
-    { name: 'typesTransmission', intitule: 'Type de transmission' },
-        { name: 'typesTerrain', intitule: 'Type de transmission' } ,
-         { name: 'etatGeneral', intitule: 'Type de transmission' } 
+                  { name: 'carburant', intitule: 'carburant' },
+                  { name: 'typesTransmission', intitule: 'Type de transmission' },
+                  { name: 'typesTerrain', intitule: 'typeTerrain' } ,
+                  { name: 'etatGeneral', intitule: 'etatGeneral' } 
 
               ];
 
