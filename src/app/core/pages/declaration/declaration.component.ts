@@ -243,7 +243,8 @@ debiteursCreances: Vocabulaire[] = [];
 carburant: Vocabulaire[] = [];
 typesTransmission: Vocabulaire[] = [];
 autresRevenus: Vocabulaire[] = [];
-
+typesTerrain: Vocabulaire[] = [];
+  etatGeneral: Vocabulaire; 
   loadTypeVocabulaires(): void {
       this.declarationService.getAllTypeVocabulaire().subscribe({
           next: (types: TypeVocabulaire[]) => {
@@ -281,7 +282,10 @@ autresRevenus: Vocabulaire[] = [];
                   { name: 'autresPrecision', intitule: 'Autres précisions créances' },
                   { name: 'banques', intitule: 'Banques' },
                     { name: 'carburant', intitule: 'carburant' },
-    { name: 'typesTransmission', intitule: 'Type de transmission' } 
+    { name: 'typesTransmission', intitule: 'Type de transmission' },
+        { name: 'typesTerrain', intitule: 'Type de transmission' } ,
+         { name: 'etatGeneral', intitule: 'Type de transmission' } 
+
               ];
 
               typesToLoad.forEach(config => {
@@ -490,7 +494,23 @@ if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
   }
 }
 }
-
+  resetFoncier(): any {
+    return {
+      nature: null,
+      modeAcquisition: null,
+      ilot: '',
+      lotissement: '',
+      superficie: null,
+      localite: '',
+      titrePropriete: '',
+      dateAcquis: null,
+      valeurAcquisFCFA: null,
+      coutInvestissement: 0,
+      hasDocument: false,
+      nbrChambres :0,
+      etatGeneral:'',
+    };
+  }
 selectedNature: any = null;
 originalFoncierData: any[] = []; // Pour stocker les données originales
 
@@ -549,7 +569,11 @@ loadFonciersBati() {
       idDeclaration: { id: this.declarationData.id },
       fileName: foncier.fileName,
       fileType: foncier.fileType,
-      fileDownloadUri: foncier.fileDownloadUri
+      fileDownloadUri: foncier.fileDownloadUri,
+etatGeneral: foncier.etatGeneral ? 
+    { id: typeof foncier.etatGeneral === 'object' ? foncier.etatGeneral.id : foncier.etatGeneral } : null,
+              nbrChambres: foncier.nbrChambres || foncier.nbrChambres || 0,
+
     };
   }
   filterByNature() {
@@ -580,7 +604,9 @@ showAddFormDialog() {
         // Initialisez avec des valeurs par défaut si nécessaire
         anneeConstruction: new Date(),
         coutInvestissement: 0,
-        superficie: 0
+        superficie: 0,
+                etatGeneral: this.etatsGeneraux[1] // Set first item as default
+
     };
     this.displayAddDialogfoncier = true;
 }
@@ -815,11 +841,13 @@ uploadNewFoncierDocument(foncierID: number, file: File, newFoncier: any) {
         }
       });
   }
-  
   validateFoncier(foncier: any): boolean {
-    return foncier.nature && foncier.anneeConstruction && 
-           foncier.modeAcquisition && foncier.referencesCadastrales;
-  }
+  return foncier.nature && 
+         foncier.anneeConstruction && 
+         foncier.modeAcquisition && 
+         foncier.referencesCadastrales &&
+         foncier.etatGeneral; // Add this
+}
 private isValidFileType(file: File): boolean {
   const validTypes = [
     'application/pdf',
@@ -1125,21 +1153,7 @@ removeSelectedFileNonBati(): void {
       });
   }
   
-  resetFoncier(): any {
-    return {
-      nature: null,
-      modeAcquisition: null,
-      ilot: '',
-      lotissement: '',
-      superficie: null,
-      localite: '',
-      titrePropriete: '',
-      dateAcquis: null,
-      valeurAcquisFCFA: null,
-      coutInvestissement: 0,
-      hasDocument: false
-    };
-  }
+
   
   validateFoncierNonBati(foncier: any): boolean {
     return !!foncier.nature && 
@@ -1425,7 +1439,8 @@ resetFoncierNonBati() {
     coutInvestissement: 0,
     hasDocument: false,
     fileName: null,
-    file: null
+    file: null,
+    typesTerrain:''
   };
 }
 confirmSaveUpdatedFoncierNonBati(foncier: any): void {
@@ -1573,7 +1588,8 @@ saveEditedFoncierNonBati(foncier: any) {
       idDeclaration: { id: this.declarationData.id },
       fileName: foncier.fileName,
       fileType: foncier.fileType,
-      fileDownloadUri: foncier.fileDownloadUri
+      fileDownloadUri: foncier.fileDownloadUri,
+            typesTerrain: foncier.typeTerrain || '',
     };
   }
   

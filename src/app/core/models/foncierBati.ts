@@ -1,5 +1,6 @@
 import { Declaration } from './declaration';
 import { Vocabulaire } from './vocabulaire';
+
 export interface FoncierBati {
   id?: number;
   nature: Vocabulaire;
@@ -18,5 +19,6 @@ export interface FoncierBati {
   fileType?: string;
   fileDownloadUri?: string;
   fileData?: Blob;
+  nbrChambres: number;         // Nouveau champ
+  etatGeneral: Vocabulaire;     // Nouveau champ
 }
-

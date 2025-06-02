@@ -51,230 +51,235 @@
   <div class="card" >
     <h5 > <span style="color: orange; font-weight: bold;">Declaration</span></h5>
     <p-accordion>
-      <p-accordionTab header="Foncier bâti" (onOpen)="loadFonciersBati()" (onClose)="resetNatureFilter()">        <div class="card mb-4 p-3 shadow-sm">
-          <div class="flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0 text-xl font-medium text-primary">Liste des fonciers</h3>
-            <div class="flex gap-2">
+     <p-accordionTab header="Foncier bâti" (onOpen)="loadFonciersBati()" (onClose)="resetNatureFilter()">
+  <div class="card mb-4 p-3 shadow-sm">
+    <div class="flex justify-content-between align-items-center mb-3">
+      <h3 class="m-0 text-xl font-medium text-primary">Liste des fonciers</h3>
+      <div class="flex gap-2">
+        <button pButton icon="pi pi-plus"
+                class="p-button-rounded p-button-success p-button-outlined"
+                (click)="showAddFormDialog()"
+                title="Ajouter">
+        </button>
+        <button pButton icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-outlined"
+                [disabled]="!selectedFonciers.length"
+                (click)="confirmDeleteSelected()"
+                title="Supprimer sélection">
+        </button>
+      </div>
+    </div>
 
-<button pButton icon="pi pi-plus"
-        class="p-button-rounded p-button-success p-button-outlined"
-        (click)="showAddFormDialog()"
-        title="Ajouter">
-</button>
-
-<button pButton icon="pi pi-trash"
-        class="p-button-rounded p-button-danger p-button-outlined"
-        [disabled]="!selectedFonciers.length"
-        (click)="confirmDeleteSelected()"
-        title="Supprimer sélection">
-</button>
-            </div>
+    <p-table [value]="foncierBatiTemp" 
+            [rows]="10" 
+            [paginator]="true" 
+            [rowHover]="true" 
+            selectionMode="multiple" 
+            [(selection)]="selectedFonciers"
+            styleClass="p-datatable-sm p-datatable-gridlines" 
+            [responsive]="true"
+            [rowsPerPageOptions]="[5,10,25,50]"
+            [globalFilterFields]="['nature','referencesCadastrales','localisation']"
+            #dt>
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <p-dropdown [options]="naturesBien" optionLabel="intitule" 
+                        [(ngModel)]="selectedNature" [showClear]="true"
+                        placeholder="Filtrer par nature" (onChange)="filterByNature()"
+                        class="w-full md:w-14rem p-inputtext-sm"></p-dropdown>
           </div>
-      
-          <p-table [value]="foncierBatiTemp" 
-                  [rows]="10" 
-                  [paginator]="true" 
-                  [rowHover]="true" 
-                  selectionMode="multiple" 
-                  [(selection)]="selectedFonciers"
-                  styleClass="p-datatable-sm p-datatable-gridlines" 
-                  [responsive]="true"
-                  [rowsPerPageOptions]="[5,10,25,50]"
-                  [globalFilterFields]="['nature','referencesCadastrales','localisation']"
-                  #dt>
-                  <ng-template pTemplate="caption">
-                    <div class="flex justify-content-between align-items-center">
-
-                      <div>
-                        <p-dropdown [options]="naturesBien" optionLabel="intitule" 
-                                    [(ngModel)]="selectedNature" [showClear]="true"
-                                    placeholder="Filtrer par nature" (onChange)="filterByNature()"
-                                    class="w-full md:w-14rem p-inputtext-sm"></p-dropdown>
-                      </div>
-                    </div>
-                  </ng-template>
-      
-            <ng-template pTemplate="header">
-              <tr class="text-base bg-primary-50">
-                <th style="width: 3rem">
-                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                </th>
-                <th pSortableColumn="nature">Nature <p-sortIcon field="nature"></p-sortIcon></th>
-                <th pSortableColumn="anneeConstruction">Année <p-sortIcon field="anneeConstruction"></p-sortIcon></th>
-                <th pSortableColumn="modeAcquisition">Acquisition <p-sortIcon field="modeAcquisition"></p-sortIcon></th>
-                <th pSortableColumn="referencesCadastrales">Cadastre <p-sortIcon field="referencesCadastrales"></p-sortIcon></th>
-                <th pSortableColumn="superficie">Superficie <p-sortIcon field="superficie"></p-sortIcon></th>
-                <th pSortableColumn="localisation">Localisation <p-sortIcon field="localisation"></p-sortIcon></th>
-                <th pSortableColumn="typeUsage">Usage <p-sortIcon field="typeUsage"></p-sortIcon></th>
-                <th pSortableColumn="coutAcquisition">Coût Acq. <p-sortIcon field="coutAcquisition"></p-sortIcon></th>
-                <th pSortableColumn="coutInvestissement">Investissements <p-sortIcon field="coutInvestissement"></p-sortIcon></th>
-                <th>Document</th>
-                <th style="width: 8rem">Actions</th>
-              </tr>
-            </ng-template>
-      
-            <ng-template pTemplate="body" let-foncier>
-              <tr [class.editing-row]="foncier.editing">
-                <td><p-tableCheckbox [value]="foncier"></p-tableCheckbox></td>
-                
-                <ng-container *ngIf="!foncier.editing">
-                  <td><span [class.font-medium]="true">{{ getIntitule(foncier.nature) }}</span></td>
-                  <td>{{ foncier.anneeConstruction | date:'yyyy' }}</td>
-                  <td>{{ getIntitule(foncier.modeAcquisition) }}</td>
-                  <td>{{ foncier.referencesCadastrales }}</td>
-                  <td>{{ foncier.superficie | number }} m²</td>
-                  <td>{{ getIntitule(foncier.localisation) }}</td>
-                  <td>{{ getIntitule(foncier.typeUsage) }}</td>
-                  <td class="font-bold text-right">{{ foncier.coutAcquisition | currency:'FCFA':'symbol':'1.0-0' }}</td>
-                  <td class="text-right">{{ foncier.coutInvestissement | currency:'FCFA':'symbol':'1.0-0' }}</td>
-                  
-<td>
-  <div class="flex align-items-center">
-<button *ngIf="foncier.editing"
-        pButton icon="pi pi-upload" 
-        class="p-button-rounded p-button-text p-button-sm p-button-info mr-2"
-        (click)="triggerFileUpload(foncier)"
-        pTooltip="{{foncier.hasDocument ? 'Remplacer le document' : 'Ajouter un document'}}">
-</button>
-    
-    <button *ngIf="!foncier.editing && foncier.hasDocument" 
-            pButton icon="pi pi-download" 
-            class="p-button-rounded p-button-text p-button-sm p-button-success mr-2"
-            (click)="downloadDocumenttitres(foncier)"
-            pTooltip="Télécharger le document"></button>
-    
-    <span *ngIf="foncier.hasDocument" class="document-name text-sm text-primary">
-      {{ foncier.fileName }}
-    </span>
-    <span *ngIf="!foncier.hasDocument" class="text-gray-500 text-sm">
-      {{ foncier.editing ? 'Cliquez sur ⬆️ pour ajouter un document' : 'Aucun document' }}
-    </span>
-  </div>
-</td>
-                  
-                  <td>
-                    <div class="flex gap-1 justify-content-center">
-                      <button pButton icon="pi pi-pencil" 
-                              class="p-button-rounded p-button-text p-button-sm"
-                              pTooltip="Modifier"
-                              (click)="startEditFoncier(foncier)"></button>
-                    </div>
-                  </td>
-                </ng-container>
-      
-                <ng-container *ngIf="foncier.editing">
-                  <td>
-                    <p-dropdown [options]="naturesBien" optionLabel="intitule" [appendTo]="'body'" 
-                              [(ngModel)]="foncier.nature" class="w-full p-inputtext-sm"></p-dropdown>
-                  </td>
-                  <td>
-                    <p-calendar [(ngModel)]="foncier.anneeConstruction" [appendTo]="'body'" 
-                              view="year" dateFormat="yy" [yearNavigator]="true" class="w-full p-inputtext-sm"></p-calendar>
-                  </td>
-                  <td>
-                    <p-dropdown [options]="modesAcquisition" optionLabel="intitule" [appendTo]="'body'" 
-                              [(ngModel)]="foncier.modeAcquisition" class="w-full p-inputtext-sm"></p-dropdown>
-                  </td>
-                  <td><input pInputText [(ngModel)]="foncier.referencesCadastrales" class="w-full p-inputtext-sm" /></td>
-                  <td><input pInputText [(ngModel)]="foncier.superficie" type="number" class="w-full p-inputtext-sm" /></td>
-                  <td>
-                    <p-dropdown [options]="localisations" optionLabel="intitule" [appendTo]="'body'" 
-                              [(ngModel)]="foncier.localisation" class="w-full p-inputtext-sm"></p-dropdown>
-                  </td>
-                  <td>
-                    <p-dropdown [options]="usages" [appendTo]="'body'" optionLabel="intitule" 
-                              [(ngModel)]="foncier.typeUsage" class="w-full p-inputtext-sm"></p-dropdown>
-                  </td>
-                  <td><input pInputText [(ngModel)]="foncier.coutAcquisition" type="number" class="w-full p-inputtext-sm" /></td>
-                  <td><input pInputText [(ngModel)]="foncier.coutInvestissement" type="number" class="w-full p-inputtext-sm" /></td>
-                        <td>
-                    <div class="flex align-items-center">
-                      <button 
-                      *ngIf="showUploadForFoncierId === foncier.id"
-                      pButton 
-                      icon="pi pi-upload" 
-                      class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
-                      (click)="showUploadDialog(foncier)" 
-                      pTooltip="Modifier le document">
-                    </button>
-                      
-                      <button *ngIf="foncier.hasDocument" 
-                              pButton icon="pi pi-download" 
-                              class="p-button-rounded p-button-text p-button-sm p-button-success mr-2"
-                              (click)="downloadDocument(foncier)"
-                              pTooltip="Télécharger le document"></button>
-                      
-                      <span *ngIf="foncier.hasDocument" class="document-name text-sm text-primary">
-                        {{ foncier.fileName }}
-                      </span>
-                      <span *ngIf="!foncier.hasDocument" class="text-gray-500 text-sm">
-                        Aucun document
-                      </span>
-                    </div>
-                  </td>
-        
-                  <td>
-                    <div class="flex gap-1 justify-content-center">
-                      <button pButton icon="pi pi-check" 
-                              class="p-button-rounded p-button-success p-button-text p-button-sm"
-                              pTooltip="Enregistrer"
-                              (click)="confirmSaveUpdatedFoncier(foncier)"></button>
-                      <button pButton icon="pi pi-times" 
-                              class="p-button-rounded p-button-danger p-button-text p-button-sm"
-                              pTooltip="Annuler"
-                              (click)="cancelEditFoncier(foncier)"></button>
-                    </div>
-                  </td>
-                </ng-container>
-              </tr>
-            </ng-template>
-            
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td colspan="12">
-                  <div class="flex flex-column align-items-center p-4">
-                    <i class="pi pi-folder-open text-6xl text-gray-400 mb-3"></i>
-                    <span class="text-gray-600">Aucun foncier bâti trouvé</span>
-                  </div>
-                </td>
-              </tr>
-            </ng-template>
-      
-            <ng-template pTemplate="paginatorleft">
-              <span class="text-sm text-gray-600">
-                Total: {{foncierBatiTemp ? foncierBatiTemp.length : 0}} fonciers
-              </span>
-            </ng-template>
-          </p-table>
         </div>
-                <input type="file" #fileUpload id="fileUpload" style="display:none" 
-               (change)="onFileSelect($event)" 
-               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-      </p-accordionTab>
-      <p-dialog  
-      header="Ajouter un nouveau foncier" 
-      [(visible)]="displayAddDialogfoncier" 
-      [modal]="true"
-      [draggable]="false" 
-      [resizable]="false"
-      [style]="{
-        width: '70vw', 
-        maxWidth: '800px', 
-        fontSize: '1.2rem', 
-        borderRadius: '16px',
-
-      }"
-      styleClass="p-3 surface-ground text-color border-round-xl"
-      [baseZIndex]="10000">
-  
-    
-      
-      <ng-template pTemplate="header">
-        <div class="w-full text-center py-4 px-2 border-round-top-xl shadow-2">
-          <span class="text-black text-xl font-bold  tracking-wide">Ajouter un nouveau foncier</span>
-     </div>
       </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr class="text-base bg-primary-50">
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="nature">Nature <p-sortIcon field="nature"></p-sortIcon></th>
+          <th pSortableColumn="anneeConstruction">Année <p-sortIcon field="anneeConstruction"></p-sortIcon></th>
+          <th pSortableColumn="modeAcquisition">Acquisition <p-sortIcon field="modeAcquisition"></p-sortIcon></th>
+          <th pSortableColumn="referencesCadastrales">Cadastre <p-sortIcon field="referencesCadastrales"></p-sortIcon></th>
+          <th pSortableColumn="superficie">Superficie <p-sortIcon field="superficie"></p-sortIcon></th>
+          <th pSortableColumn="localisation">Localisation <p-sortIcon field="localisation"></p-sortIcon></th>
+          <th pSortableColumn="typeUsage">Usage <p-sortIcon field="typeUsage"></p-sortIcon></th>
+          <th pSortableColumn="nbrChambres">Chambres <p-sortIcon field="nbrChambres"></p-sortIcon></th>
+          <th pSortableColumn="etatGeneral">État <p-sortIcon field="etatGeneral"></p-sortIcon></th>
+          <th pSortableColumn="coutAcquisition">Coût Acq. <p-sortIcon field="coutAcquisition"></p-sortIcon></th>
+          <th pSortableColumn="coutInvestissement">Investissements <p-sortIcon field="coutInvestissement"></p-sortIcon></th>
+          <th>Document</th>
+          <th style="width: 8rem">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-foncier>
+        <tr [class.editing-row]="foncier.editing">
+          <td><p-tableCheckbox [value]="foncier"></p-tableCheckbox></td>
+          
+          <ng-container *ngIf="!foncier.editing">
+            <td><span [class.font-medium]="true">{{ getIntitule(foncier.nature) }}</span></td>
+            <td>{{ foncier.anneeConstruction | date:'yyyy' }}</td>
+            <td>{{ getIntitule(foncier.modeAcquisition) }}</td>
+            <td>{{ foncier.referencesCadastrales }}</td>
+            <td>{{ foncier.superficie | number }} m²</td>
+            <td>{{ getIntitule(foncier.localisation) }}</td>
+            <td>{{ getIntitule(foncier.typeUsage) }}</td>
+            <td>{{ foncier.nbrChambres }}</td>
+            <td>{{ getIntitule(foncier.etatGeneral) }}</td>
+            <td class="font-bold text-right">{{ foncier.coutAcquisition | currency:'FCFA':'symbol':'1.0-0' }}</td>
+            <td class="text-right">{{ foncier.coutInvestissement | currency:'FCFA':'symbol':'1.0-0' }}</td>
+            
+            <td>
+              <div class="flex align-items-center">
+                <button *ngIf="foncier.editing"
+                        pButton icon="pi pi-upload" 
+                        class="p-button-rounded p-button-text p-button-sm p-button-info mr-2"
+                        (click)="triggerFileUpload(foncier)"
+                        pTooltip="{{foncier.hasDocument ? 'Remplacer le document' : 'Ajouter un document'}}">
+                </button>
+                
+                <button *ngIf="!foncier.editing && foncier.hasDocument" 
+                        pButton icon="pi pi-download" 
+                        class="p-button-rounded p-button-text p-button-sm p-button-success mr-2"
+                        (click)="downloadDocument(foncier)"
+                        pTooltip="Télécharger le document"></button>
+                
+                <span *ngIf="foncier.hasDocument" class="document-name text-sm text-primary">
+                  {{ foncier.fileName }}
+                </span>
+                <span *ngIf="!foncier.hasDocument" class="text-gray-500 text-sm">
+                  {{ foncier.editing ? 'Cliquez sur ⬆️ pour ajouter un document' : 'Aucun document' }}
+                </span>
+              </div>
+            </td>
+            
+            <td>
+              <div class="flex gap-1 justify-content-center">
+                <button pButton icon="pi pi-pencil" 
+                        class="p-button-rounded p-button-text p-button-sm"
+                        pTooltip="Modifier"
+                        (click)="startEditFoncier(foncier)"></button>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container *ngIf="foncier.editing">
+            <td>
+              <p-dropdown [options]="naturesBien" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.nature" class="w-full p-inputtext-sm"></p-dropdown>
+            </td>
+            <td>
+              <p-calendar [(ngModel)]="foncier.anneeConstruction" [appendTo]="'body'" 
+                        view="year" dateFormat="yy" [yearNavigator]="true" class="w-full p-inputtext-sm"></p-calendar>
+            </td>
+            <td>
+              <p-dropdown [options]="modesAcquisition" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.modeAcquisition" class="w-full p-inputtext-sm"></p-dropdown>
+            </td>
+            <td><input pInputText [(ngModel)]="foncier.referencesCadastrales" class="w-full p-inputtext-sm" /></td>
+            <td><input pInputText [(ngModel)]="foncier.superficie" type="number" class="w-full p-inputtext-sm" /></td>
+            <td>
+              <p-dropdown [options]="localisations" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.localisation" class="w-full p-inputtext-sm"></p-dropdown>
+            </td>
+            <td>
+              <p-dropdown [options]="usages" [appendTo]="'body'" optionLabel="intitule" 
+                        [(ngModel)]="foncier.typeUsage" class="w-full p-inputtext-sm"></p-dropdown>
+            </td>
+            <td>
+              <input pInputText [(ngModel)]="foncier.nbrChambres" type="number" min="0" class="w-full p-inputtext-sm" />
+            </td>
+            <td>
+              <p-dropdown [options]="etatsGeneraux" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.etatGeneral" class="w-full p-inputtext-sm"></p-dropdown>
+            </td>
+            <td><input pInputText [(ngModel)]="foncier.coutAcquisition" type="number" class="w-full p-inputtext-sm" /></td>
+            <td><input pInputText [(ngModel)]="foncier.coutInvestissement" type="number" class="w-full p-inputtext-sm" /></td>
+            <td>
+              <div class="flex align-items-center">
+                <button *ngIf="showUploadForFoncierId === foncier.id"
+                        pButton icon="pi pi-upload" 
+                        class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
+                        (click)="showUploadDialog(foncier)" 
+                        pTooltip="Modifier le document">
+                </button>
+                
+                <button *ngIf="foncier.hasDocument" 
+                        pButton icon="pi pi-download" 
+                        class="p-button-rounded p-button-text p-button-sm p-button-success mr-2"
+                        (click)="downloadDocument(foncier)"
+                        pTooltip="Télécharger le document"></button>
+                
+                <span *ngIf="foncier.hasDocument" class="document-name text-sm text-primary">
+                  {{ foncier.fileName }}
+                </span>
+                <span *ngIf="!foncier.hasDocument" class="text-gray-500 text-sm">
+                  Aucun document
+                </span>
+              </div>
+            </td>
+            
+            <td>
+              <div class="flex gap-1 justify-content-center">
+                <button pButton icon="pi pi-check" 
+                        class="p-button-rounded p-button-success p-button-text p-button-sm"
+                        pTooltip="Enregistrer"
+                        (click)="confirmSaveUpdatedFoncier(foncier)"></button>
+                <button pButton icon="pi pi-times" 
+                        class="p-button-rounded p-button-danger p-button-text p-button-sm"
+                        pTooltip="Annuler"
+                        (click)="cancelEditFoncier(foncier)"></button>
+              </div>
+            </td>
+          </ng-container>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="14">
+            <div class="flex flex-column align-items-center p-4">
+              <i class="pi pi-folder-open text-6xl text-gray-400 mb-3"></i>
+              <span class="text-gray-600">Aucun foncier bâti trouvé</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="paginatorleft">
+        <span class="text-sm text-gray-600">
+          Total: {{foncierBatiTemp ? foncierBatiTemp.length : 0}} fonciers
+        </span>
+      </ng-template>
+    </p-table>
+  </div>
   
+  <input type="file" #fileUpload id="fileUpload" style="display:none" 
+         (change)="onFileSelect($event)" 
+         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+</p-accordionTab>
+
+<p-dialog header="Ajouter un nouveau foncier" 
+         [(visible)]="displayAddDialogfoncier" 
+         [modal]="true"
+         [draggable]="false" 
+         [resizable]="false"
+         [style]="{
+           width: '70vw', 
+           maxWidth: '800px', 
+           fontSize: '1.2rem', 
+           borderRadius: '16px',
+         }"
+         styleClass="p-3 surface-ground text-color border-round-xl"
+         [baseZIndex]="10000">
+  
+  <ng-template pTemplate="header">
+    <div class="w-full text-center py-4 px-2 border-round-top-xl shadow-2">
+      <span class="text-black text-xl font-bold tracking-wide">Ajouter un nouveau foncier</span>
+    </div>
+  </ng-template>
+
   <div class="p-dialog-content">
     <div class="formgrid grid p-4 surface-card border-round-lg shadow-2">
       <!-- Ligne 1 -->
@@ -319,7 +324,6 @@
                   placeholder="Année"
                   [yearRange]="'1900:2025'"
                   class="w-full"
-                  
                   [style]="{'border-color': submitted && !tableRowFoncier.anneeConstruction ? '#f87171' : '', 'height': '40px'}"></p-calendar>
         <small *ngIf="submitted && !tableRowFoncier.anneeConstruction" class="p-error block mt-1">L'année est requise</small>
       </div>
@@ -432,6 +436,41 @@
       </div>
       
       <div class="field col-12 md:col-6 p-3">
+        <label for="nbrChambres" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
+          <i class="pi pi-building mr-2 text-orange-500"></i>Nombre de chambres
+        </label>
+        <input id="nbrChambres" pInputText [(ngModel)]="tableRowFoncier.nbrChambres" type="number" min="0" class="w-full" style="height: 40px;" />
+      </div>
+      
+      <!-- Ligne 5 -->
+      <div class="field col-12 md:col-6 p-3">
+        <label for="etatGeneral" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
+          <i class="pi pi-star mr-2 text-orange-500"></i>État général
+        </label>
+        <p-dropdown id="etatGeneral"
+          [options]="etatGeneral" 
+          optionLabel="intitule" 
+          [(ngModel)]="tableRowFoncier.etatGeneral" 
+          placeholder="Sélectionner" 
+          [required]="true" 
+          class="w-full"
+          [style]="{'border-color': submitted && !tableRowFoncier.etatGeneral ? '#f87171' : '', 'height': '40px'}">
+          <ng-template pTemplate="selectedItem">
+            <div class="flex align-items-center" *ngIf="tableRowFoncier.etatGeneral">
+              <i class="pi pi-star mr-2 text-orange-500"></i>
+              <span>{{tableRowFoncier.etatGeneral.intitule}}</span>
+            </div>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center">
+              <i class="pi pi-star mr-2 text-orange-500"></i>
+              <span>{{item.intitule}}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+      
+      <div class="field col-12 md:col-6 p-3">
         <label for="coutacq" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-money-bill mr-2 text-orange-500"></i>Coût d'acquisition (FCFA)<span class="text-danger">*</span>
         </label>
@@ -443,7 +482,7 @@
         <small *ngIf="submitted && !tableRowFoncier.coutAcquisition" class="p-error block mt-1">Le coût d'acquisition est requis</small>
       </div>
       
-      <!-- Ligne 5 -->
+      <!-- Ligne 6 -->
       <div class="field col-12 md:col-6 p-3">
         <label for="coutinv" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-chart-line mr-2 text-orange-500"></i>Investissements (FCFA)
@@ -454,20 +493,18 @@
         </div>
       </div>
       
-      <!-- Ligne 6 - Champ unique sur toute la largeur -->
+      <!-- Ligne 7 - Champ unique sur toute la largeur -->
       <div class="field col-12 p-3">
         <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-file mr-2 text-orange-500"></i>Document (facultatif)
         </label>
         <div class="flex align-items-center gap-2">
-
-                  <button 
-                  pButton 
+          <button pButton 
                   icon="pi pi-upload" 
                   class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
-                  (click)="   showUploadDialogForNewFoncier()" 
-                  label="Ajouter un document" >
-                </button>
+                  (click)="showUploadDialogForNewFoncier()" 
+                  label="Ajouter un document">
+          </button>
           <div *ngIf="tableRowFoncier.fileName" class="ml-3 flex align-items-center bg-orange-50 p-2 border-round">
             <i class="pi pi-file text-orange-500 mr-2"></i>
             <span class="text-sm text-orange-500">{{ tableRowFoncier.fileName }}</span>
@@ -513,7 +550,7 @@
         <div class="py-3 px-4 border-1 border-dashed border-orange-500 border-round mb-2 text-center cursor-pointer hover:bg-orange-50 transition-colors transition-duration-300" 
              (click)="fileInput.click()" 
              (dragover)="$event.preventDefault()" 
-             (drop)="handleFileDropdette($event)">
+             (drop)="handleFileDrop($event)">
           <span class="flex flex-column align-items-center">
             <i class="pi pi-cloud-upload text-5xl text-orange-500 mb-2"></i>
             <span class="text-orange-500">Glisser et déposer un fichier ici ou cliquer pour parcourir</span>
@@ -542,7 +579,6 @@
     </div>
   </ng-template>
 </p-dialog>
-
 
 <style>
 :host ::ng-deep .centered-dialog {
@@ -595,7 +631,6 @@
 
 <p-toast [style]="{marginTop: '80px'}" position="top-right"></p-toast>
 
-
 <p-accordionTab header="Foncier non bâti" (onOpen)="loadFonciersNonBati()" (onClose)="resetNatureFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
@@ -606,12 +641,12 @@
                 (click)="showAddFormDialogfnb()"
                 title="Ajouter">
         </button>
-<button pButton icon="pi pi-trash"
-        class="p-button-rounded p-button-danger p-button-outlined"
-        [disabled]="!selectedFoncierNonBati?.length"
-        (click)="confirmDeleteSelected()"
-        title="Supprimer sélection">
-</button>
+        <button pButton icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-outlined"
+                [disabled]="!selectedFoncierNonBati?.length"
+                (click)="confirmDeleteSelected()"
+                title="Supprimer sélection">
+        </button>
       </div>
     </div>
 
@@ -643,6 +678,7 @@
             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
           </th>
           <th pSortableColumn="nature">Nature <p-sortIcon field="nature"></p-sortIcon></th>
+          <th pSortableColumn="typeTerrain">Type terrain <p-sortIcon field="typeTerrain"></p-sortIcon></th>
           <th pSortableColumn="modeAcquisition">Acquisition <p-sortIcon field="modeAcquisition"></p-sortIcon></th>
           <th pSortableColumn="ilot">Ilot <p-sortIcon field="ilot"></p-sortIcon></th>
           <th pSortableColumn="lotissement">Lotissement <p-sortIcon field="lotissement"></p-sortIcon></th>
@@ -663,6 +699,7 @@
           
           <ng-container *ngIf="!foncier.editing">
             <td><span [class.font-medium]="true">{{ getIntitule(foncier.nature) }}</span></td>
+            <td>{{ getIntitule(foncier.typeTerrain) }}</td>
             <td>{{ getIntitule(foncier.modeAcquisition) }}</td>
             <td>{{ foncier.ilot }}</td>
             <td>{{ foncier.lotissement }}</td>
@@ -713,6 +750,10 @@
                         [(ngModel)]="foncier.nature" class="w-full p-inputtext-sm"></p-dropdown>
             </td>
             <td>
+              <p-dropdown [options]="typesTerrain" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.typeTerrain" class="w-full p-inputtext-sm"></p-dropdown>
+            </td>
+            <td>
               <p-dropdown [options]="modesAcquisition" optionLabel="intitule" [appendTo]="'body'" 
                         [(ngModel)]="foncier.modeAcquisition" class="w-full p-inputtext-sm"></p-dropdown>
             </td>
@@ -729,12 +770,12 @@
             <td><input pInputText [(ngModel)]="foncier.coutInvestissement" type="number" class="w-full p-inputtext-sm" /></td>
             <td>
               <div class="flex align-items-center">
-<button *ngIf="foncier.editing"
-        pButton icon="pi pi-upload" 
-        class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
-        (click)="triggerFileUploadNonBati(foncier)" 
-        pTooltip="{{foncier.hasDocument ? 'Remplacer le document' : 'Ajouter un document'}}">
-</button>
+                <button *ngIf="foncier.editing"
+                        pButton icon="pi pi-upload" 
+                        class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
+                        (click)="triggerFileUploadNonBati(foncier)" 
+                        pTooltip="{{foncier.hasDocument ? 'Remplacer le document' : 'Ajouter un document'}}">
+                </button>
                 
                 <button *ngIf="foncier.hasDocument" 
                         pButton icon="pi pi-download" 
@@ -768,7 +809,7 @@
       
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="13">
+          <td colspan="14">
             <div class="flex flex-column align-items-center p-4">
               <i class="pi pi-folder-open text-6xl text-gray-400 mb-3"></i>
               <span class="text-gray-600">Aucun foncier non bâti trouvé</span>
@@ -789,6 +830,7 @@
          (change)="onFileSelectNonBati($event)" 
          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
 </p-accordionTab>
+
 <p-dialog class="foncier-nonbati-dialog"
   header="Ajouter un nouveau foncier non bâti" 
   [(visible)]="displayAddDialogNonBati"  
@@ -812,7 +854,7 @@
 
   <div class="p-dialog-content">
     <div class="formgrid grid p-4 surface-card border-round-lg shadow-2">
-      <!-- Ligne 1 - Nature et Mode d'acquisition -->
+      <!-- Ligne 1 - Nature et Type de terrain -->
       <div class="field col-12 md:col-6 p-3">
         <label for="natureNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-tags mr-2 text-orange-500"></i>Nature du terrain<span class="text-danger">*</span>
@@ -842,6 +884,35 @@
       </div>
       
       <div class="field col-12 md:col-6 p-3">
+        <label for="typeTerrainNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
+          <i class="pi pi-map mr-2 text-orange-500"></i>Type de terrain<span class="text-danger">*</span>
+        </label>
+        <p-dropdown id="typeTerrainNonBati"
+                  [options]="typesTerrain" 
+                  optionLabel="intitule" 
+                  [(ngModel)]="newFoncierNonBati.typeTerrain" 
+                  placeholder="Sélectionner" 
+                  [required]="true" 
+                  class="w-full"
+                  [style]="{'border-color': submitted && !newFoncierNonBati.typeTerrain ? '#f87171' : '', 'height': '40px'}">
+          <ng-template pTemplate="selectedItem">
+            <div class="flex align-items-center" *ngIf="newFoncierNonBati.typeTerrain">
+              <i class="pi pi-map mr-2 text-orange-500"></i>
+              <span>{{newFoncierNonBati.typeTerrain.intitule}}</span>
+            </div>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center">
+              <i class="pi pi-map mr-2 text-orange-500"></i>
+              <span>{{item.intitule}}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <small *ngIf="submitted && !newFoncierNonBati.typeTerrain" class="p-error block mt-1">Le type de terrain est requis</small>
+      </div>
+
+      <!-- Ligne 2 - Mode d'acquisition et Ilot -->
+      <div class="field col-12 md:col-6 p-3">
         <label for="modeacqNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-shopping-cart mr-2 text-orange-500"></i>Mode d'acquisition<span class="text-danger">*</span>
         </label>
@@ -869,7 +940,6 @@
         <small *ngIf="submitted && !newFoncierNonBati.modeAcquisition" class="p-error block mt-1">Le mode d'acquisition est requis</small>
       </div>
 
-      <!-- Ligne 2 - Ilot et Lotissement -->
       <div class="field col-12 md:col-6 p-3">
         <label for="ilotNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-map mr-2 text-orange-500"></i>Ilot
@@ -877,7 +947,8 @@
         <input id="ilotNonBati" pInputText [(ngModel)]="newFoncierNonBati.ilot" class="w-full" 
                style="height: 40px;" />
       </div>
-      
+
+      <!-- Ligne 3 - Lotissement et Superficie -->
       <div class="field col-12 md:col-6 p-3">
         <label for="lotissementNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-map-marker mr-2 text-orange-500"></i>Lotissement
@@ -886,7 +957,6 @@
                style="height: 40px;" />
       </div>
 
-      <!-- Ligne 3 - Superficie et Localité -->
       <div class="field col-12 md:col-6 p-3">
         <label for="superficieNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-th-large mr-2 text-orange-500"></i>Superficie (m²)<span class="text-danger">*</span>
@@ -899,7 +969,8 @@
         </div>
         <small *ngIf="submitted && !newFoncierNonBati.superficie" class="p-error block mt-1">La superficie est requise</small>
       </div>
-      
+
+      <!-- Ligne 4 - Localité et Titre de propriété -->
       <div class="field col-12 md:col-6 p-3">
         <label for="localiteNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-globe mr-2 text-orange-500"></i>Localité<span class="text-danger">*</span>
@@ -910,7 +981,6 @@
         <small *ngIf="submitted && !newFoncierNonBati.localite" class="p-error block mt-1">La localité est requise</small>
       </div>
 
-      <!-- Ligne 4 - Titre de propriété et Date d'acquisition -->
       <div class="field col-12 md:col-6 p-3">
         <label for="titreProprieteNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-id-card mr-2 text-orange-500"></i>Titre de propriété
@@ -918,7 +988,8 @@
         <input id="titreProprieteNonBati" pInputText [(ngModel)]="newFoncierNonBati.titrePropriete" class="w-full" 
                style="height: 40px;" />
       </div>
-      
+
+      <!-- Ligne 5 - Date d'acquisition et Valeur d'acquisition -->
       <div class="field col-12 md:col-6 p-3">
         <label for="dateAcquisNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-calendar mr-2 text-orange-500"></i>Date d'acquisition<span class="text-danger">*</span>
@@ -932,7 +1003,6 @@
         <small *ngIf="submitted && !newFoncierNonBati.dateAcquis" class="p-error block mt-1">La date d'acquisition est requise</small>
       </div>
 
-      <!-- Ligne 5 - Valeur d'acquisition et Coût d'investissement -->
       <div class="field col-12 md:col-6 p-3">
         <label for="valeurAcquisNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-money-bill mr-2 text-orange-500"></i>Valeur d'acquisition (FCFA)<span class="text-danger">*</span>
@@ -944,7 +1014,8 @@
         </div>
         <small *ngIf="submitted && !newFoncierNonBati.valeurAcquisFCFA" class="p-error block mt-1">La valeur d'acquisition est requise</small>
       </div>
-      
+
+      <!-- Ligne 6 - Coût d'investissement et Documents -->
       <div class="field col-12 md:col-6 p-3">
         <label for="coutInvNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-chart-line mr-2 text-orange-500"></i>Coût d'investissement (FCFA)
@@ -955,7 +1026,6 @@
         </div>
       </div>
 
-      <!-- Ligne 6 - Documents -->
       <div class="field col-12 p-3">
         <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-file mr-2 text-orange-500"></i>Document justificatif
