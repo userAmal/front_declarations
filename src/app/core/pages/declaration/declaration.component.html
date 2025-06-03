@@ -1,58 +1,101 @@
-  <div class="card" >
-
-    <div class="card" >
-      <div class="flex align-items-center justify-content-between mb-0" >
-        <h5 > <span style="color: orange; font-weight: bold;">VOS INFORMATIONS</span></h5>
-      </div>
-      <div class="card flex align-items-center justify-content-center flex-wrap gap-3" [style]="{'border': '1px solid orange'}">
-        <div>
-          <label for="code">Code : </label>
-          <input type="text" name="code" size="20" pInputText [disabled]="true" 
-                 [(ngModel)]="declarationData.assujetti.code" />
-        </div>
-      
-        <div>
-          <label for="nom">Nom : </label>
-          <input type="text" name="nom" size="20" pInputText [disabled]="true"
-                 [(ngModel)]="declarationData.assujetti.nom" />
-        </div>
-      
-        <div>
-          <label for="prenom">Prénom : </label>
-          <input type="text" name="prenom" size="20" pInputText [disabled]="true"
-                 [(ngModel)]="declarationData.assujetti.prenom" />  
-        </div>
-      
-        <div>
-          <label for="numdec">Numéro déclaration : </label>
-          <input type="text" name="numdec" size="20" pInputText [disabled]="true"
-                 [(ngModel)]="declarationData.numeroDeclaration" />
-        </div>
-      
-    
-        <div>
-          <label for="typdec">Type de déclaration : </label>
-          <input type="text" name="typdec" size="20" pInputText [disabled]="true"
-                 [(ngModel)]="declarationData.typeDeclaration" />
-        </div>
-      
-<div>
-  <label for="dateprisedec">Date Prise de Service : </label>
-  <input type="date" 
-         name="dateprisedec" 
-         size="50" 
-         pInputText 
-         [disabled]="true"
-         [ngModel]="declarationData.assujetti.datePriseDeService | date:'yyyy-MM-dd'" />
-</div>
-      </div>
+<div class="declaration-container">
+  
+  <!-- En-tête avec logo et titre principal -->
+  <div class="header-section">
+    <div class="logo-container">
+      <img src="/assets/demo/images/logos/niger.png" alt="Logo Niger">
+    </div>
+    <div class="title-container">
+      <h1 class="main-title">Déclaration des biens</h1>
+      <p class="subtitle">CDB NIGER</p>
+    </div>
   </div>
-                <img src="/assets/demo/images/logos/niger.png" >
-  <div class="card" >
-    <h5 > <span style="color: orange; font-weight: bold;">Declaration</span></h5>
+
+  <!-- Section des informations personnelles -->
+  <div class="info-section">
+    <div class="card info-card">
+      <h2 class="section-title">
+        <i class="pi pi-user" style="margin-right: 10px;"></i>
+        VOS INFORMATIONS
+      </h2>
+      
+      <div class="info-grid">
+        <div class="field-group">
+          <label for="code" class="field-label">Code</label>
+          <input 
+            type="text" 
+            id="code"
+            name="code" 
+            class="p-inputtext"
+            [disabled]="true" 
+            [(ngModel)]="declarationData.assujetti.code" 
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="nom" class="field-label">Nom</label>
+          <input 
+            type="text" 
+            id="nom"
+            name="nom" 
+            class="p-inputtext"
+            [disabled]="true" 
+            [(ngModel)]="declarationData.assujetti.nom" 
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="prenom" class="field-label">Prénom</label>
+          <input 
+            type="text" 
+            id="prenom"
+            name="prenom" 
+            class="p-inputtext"
+            [disabled]="true" 
+            [(ngModel)]="declarationData.assujetti.prenom" 
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="numdec" class="field-label">Numéro déclaration</label>
+          <input 
+            type="text" 
+            id="numdec"
+            name="numdec" 
+            class="p-inputtext"
+            [disabled]="true" 
+            [(ngModel)]="declarationData.numeroDeclaration" 
+          />
+        </div>
+
+        
+
+        <div class="field-group">
+          <label for="dateprisedec" class="field-label">Date Prise de Service</label>
+          <input 
+            type="date" 
+            id="dateprisedec"
+            name="dateprisedec" 
+            class="p-inputtext"
+            [disabled]="true" 
+            [ngModel]="declarationData.assujetti.datePriseDeService | date:'yyyy-MM-dd'" 
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section déclaration (pour vos tableaux) -->
+    <div class="card">
+      <h2 class="section-title">
+        <i class="pi pi-file-edit" style="margin-right: 10px;"></i>
+        DÉCLARATION
+      </h2>
+      
+
     <p-accordion>
      <p-accordionTab header="Foncier bâti" (onOpen)="loadFonciersBati()" (onClose)="resetNatureFilter()">
-  <div class="card mb-4 p-3 shadow-sm">
+    <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
       <h3 class="m-0 text-xl font-medium text-primary">Liste des fonciers</h3>
       <div class="flex gap-2">
@@ -5192,14 +5235,11 @@
 
 
 
-
-  <div class="flex justify-content-center gap-3 mt-6 mb-5">
-    <button pButton label="Annuler la déclaration" icon="pi pi-times" 
-            class="p-button-outlined p-button-danger p-button-lg" 
-            style="min-width: 220px"></button>
-            
-            <button pButton label="Enregistrer la déclaration" icon="pi pi-save" 
-            class="p-button-help p-button-lg" 
-            style="min-width: 220px"
+<div class="flex justify-content-center align-items-center" style="height: 20vh;">
+    <button pButton 
+            label="Enregistrer la déclaration" 
+            icon="pi pi-save" 
+            class="p-button-lg" 
+            style="min-width: 220px; background-color: #53ca59; border-color: #50c756;"
             (click)="saveDeclaration()"></button>
 </div>

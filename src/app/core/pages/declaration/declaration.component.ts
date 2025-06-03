@@ -36,12 +36,7 @@ registerLocaleData(localeFr);
   templateUrl: './declaration.component.html',
   styleUrls: ['./declaration.component.scss'],
   providers: [MessageService],
-  animations: [
-   
-    
- 
-   
-  ]
+
 })
 
 export class DeclarationComponent {
