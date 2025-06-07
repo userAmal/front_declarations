@@ -94,10 +94,9 @@
       
 
     <p-accordion>
-     <p-accordionTab header="Foncier bâti" (onOpen)="loadFonciersBati()" (onClose)="resetNatureFilter()">
-    <div class="card mb-4 p-3 shadow-sm">
+<p-accordionTab header="Foncier bâti" class="custom-orange" (onOpen)="loadFonciersBati()" (onClose)="resetNatureFilter()">    <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des fonciers</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des fonciers</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -145,7 +144,7 @@
           <th pSortableColumn="modeAcquisition">Acquisition <p-sortIcon field="modeAcquisition"></p-sortIcon></th>
           <th pSortableColumn="referencesCadastrales">Cadastre <p-sortIcon field="referencesCadastrales"></p-sortIcon></th>
           <th pSortableColumn="superficie">Superficie <p-sortIcon field="superficie"></p-sortIcon></th>
-          <th pSortableColumn="localisation">Localisation <p-sortIcon field="localisation"></p-sortIcon></th>
+          <th pSortableColumn="localisation">gouvernorat <p-sortIcon field="localisation"></p-sortIcon></th>
           <th pSortableColumn="typeUsage">Usage <p-sortIcon field="typeUsage"></p-sortIcon></th>
           <th pSortableColumn="nbrChambres">Chambres <p-sortIcon field="nbrChambres"></p-sortIcon></th>
           <th pSortableColumn="etatGeneral">État <p-sortIcon field="etatGeneral"></p-sortIcon></th>
@@ -423,7 +422,7 @@
       
       <div class="field col-12 md:col-6 p-3">
         <label for="localisation" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
-          <i class="pi pi-map-marker mr-2 text-orange-500"></i>Localisation<span class="text-danger">*</span>
+          <i class="pi pi-map-marker mr-2 text-orange-500"></i>gouvernorat<span class="text-danger">*</span>
         </label>
         <p-dropdown id="localisation"
                   [options]="localisations" 
@@ -446,7 +445,7 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <small *ngIf="submitted && !tableRowFoncier.localisation" class="p-error block mt-1">La localisation est requise</small>
+        <small *ngIf="submitted && !tableRowFoncier.localisation" class="p-error block mt-1">La gouvernorat est requise</small>
       </div>
       
       <!-- Ligne 4 -->
@@ -674,10 +673,10 @@
 
 <p-toast [style]="{marginTop: '80px'}" position="top-right"></p-toast>
 
-<p-accordionTab header="Foncier non bâti" (onOpen)="loadFonciersNonBati()" (onClose)="resetNatureFilter()">
+<p-accordionTab  class="custom-orange" header="Foncier non bâti" (onOpen)="loadFonciersNonBati()" (onClose)="resetNatureFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des fonciers non bâtis</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des fonciers non bâtis</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -1101,10 +1100,10 @@
     </div>
   </ng-template>
 </p-dialog>
-<p-accordionTab header="MeubleMeublant" (onOpen)="loadMeublesMeublants()" (onClose)="resetMeubleFilter()">
+<p-accordionTab  class="custom-orange" header="MeubleMeublant" (onOpen)="loadMeublesMeublants()" (onClose)="resetMeubleFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des meubles meublants</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des meubles meublants</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -1411,10 +1410,10 @@
     </div>
   </ng-template>
 </p-dialog>
-<p-accordionTab header="Appareil Électroménager" (onOpen)="loadAppareilsFromDeclaration()" (onClose)="resetAppareilFilter()">
+<p-accordionTab  class="custom-orange" header="Appareil Électroménager" (onOpen)="loadAppareilsFromDeclaration()" (onClose)="resetAppareilFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des appareils électroménagers</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des appareils électroménagers</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -1727,10 +1726,10 @@
     </div>
   </ng-template>
 </p-dialog>
-<p-accordionTab header="Animaux" (onOpen)="loadAnimaux()" (onClose)="resetAnimalFilter()">
+<p-accordionTab  class="custom-orange" header="Animaux" (onOpen)="loadAnimaux()" (onClose)="resetAnimalFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des animaux</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des animaux</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -2098,10 +2097,10 @@
     </div>
   </ng-template>
 </p-dialog>
-<p-accordionTab header="Emprunt" (onOpen)="loadEmprunts()" (onClose)="resetEmpruntFilter()">
+<p-accordionTab  class="custom-orange" header="Emprunt" (onOpen)="loadEmprunts()" (onClose)="resetEmpruntFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des emprunts</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des emprunts</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -2404,10 +2403,10 @@
     </div>
   </ng-template>
 </p-dialog>
-<p-accordionTab header="Espèce" class="line-height-3 m-0" (onOpen)="loadEspeces()" (onClose)="resetDeviseFilter()">
+<p-accordionTab  class="custom-orange" header="Espèce" (onOpen)="loadEspeces()" (onClose)="resetDeviseFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des espèces</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des espèces</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -2704,10 +2703,10 @@
     </div>
   </ng-template>
 </p-dialog>
-<p-accordionTab header="Titres et Valeurs" class="line-height-3 m-0" (onOpen)="loadTitresForDeclaration()" (onClose)="resetDesignationFilter()">
+<p-accordionTab  class="custom-orange" header="Titres et Valeurs"  (onOpen)="loadTitresForDeclaration()" (onClose)="resetDesignationFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des titres</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des titres</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -3032,10 +3031,10 @@
     </ng-template>
   </p-dialog>
 </p-accordionTab>
-<p-accordionTab header="Revenu" (onOpen)="loadRevenusByDeclaration()">
+<p-accordionTab  class="custom-orange" header="Revenu" (onOpen)="loadRevenusByDeclaration()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des revenus</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des revenus</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -3309,10 +3308,10 @@
     </ng-template>
   </p-dialog>
 </p-accordionTab>
-<p-accordionTab header="Créance" (onOpen)="loadCreancesByDeclaration()" (onClose)="resetCreanceFilter()">
+<p-accordionTab  class="custom-orange" header="Créance" (onOpen)="loadCreancesByDeclaration()" (onClose)="resetCreanceFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des créances</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des créances</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -3567,10 +3566,10 @@
 <input type="file" #fileUploadCreanceInput id="fileUploadCreanceInput" style="display:none"
        (change)="onCreanceFileSelect($event)"
        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-<p-accordionTab header="Véhicules" (onOpen)="loadVehiculesByDeclaration()" >
+<p-accordionTab  class="custom-orange" header="Véhicules" (onOpen)="loadVehiculesByDeclaration()" >
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des véhicules</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des véhicules</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -4069,10 +4068,10 @@
     </div>
   </ng-template>
 </p-dialog>
- <p-accordionTab header="Autre bien de valeur" (onOpen)="loadAutresBiensByDeclaration()" (onClose)="resetNatureFilter()">
+ <p-accordionTab  class="custom-orange" header="Autre bien de valeur" (onOpen)="loadAutresBiensByDeclaration()" (onClose)="resetNatureFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des autres biens</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des autres biens</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -4513,10 +4512,10 @@
 
 
 
- <p-accordionTab header="Autre Dette" class="line-height-3 m-0" (onOpen)="loadAutresDettes()">
+ <p-accordionTab  class="custom-orange" header="Autre Dette"  (onOpen)="loadAutresDettes()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des dettes</h3>
+      <h3 class="m-0 text-xl font-medium text-orange-500">Liste des dettes</h3>
       <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
@@ -4876,11 +4875,10 @@
          (change)="onFileSelectdette($event)" 
          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
 </p-accordionTab>
-<p-accordionTab header="Disponibilités en Banque" (onOpen)="loadDisponibilites()" (onClose)="resetBanqueFilter()">
+<p-accordionTab  class="custom-orange" header="Disponibilités en Banque" (onOpen)="loadDisponibilites()" (onClose)="resetBanqueFilter()">
   <div class="card mb-4 p-3 shadow-sm"> 
     <div class="flex justify-content-between align-items-center mb-3">
-      <h3 class="m-0 text-xl font-medium text-primary">Liste des disponibilités bancaires</h3>
-      <div class="flex gap-2">
+<h3 class="m-0 text-xl font-medium text-orange-500">Liste des disponibilités bancaires</h3>      <div class="flex gap-2">
         <button pButton icon="pi pi-plus"
                 class="p-button-rounded p-button-success p-button-outlined"
                 (click)="showAddFormDialogdispo()"

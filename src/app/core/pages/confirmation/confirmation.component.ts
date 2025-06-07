@@ -29,7 +29,8 @@ import { Router } from '@angular/router';
               
               <div class="detail-item">
                 <i class="pi pi-info-circle"></i>
-                <span>État de votre déclaration : <strong>En cours</strong></span>
+                <span>État de votre déclaration : <strong>En cours de CONTRÔLE
+</strong></span>
               </div>
             </div>
           </div>
