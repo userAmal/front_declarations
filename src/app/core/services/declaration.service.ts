@@ -684,7 +684,7 @@ getAutresBiensDeValeurByDesignation(designationId: number): Observable<any[]> {
 
  
  getByDeclaration(declarationId: number): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/by-declaration/${declarationId}`);
+  return this.http.get<any[]>(`${this.apiUrl}/autres-dettes/by-declaration/${declarationId}`);
 }
 
 createAutreDette(dette: any): Observable<any> {

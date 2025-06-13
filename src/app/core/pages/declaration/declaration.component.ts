@@ -66,7 +66,7 @@ declarationId: string | null = null;
   ngOnInit(): void {
     this.loadTypeVocabulaires();
     console.log("Dans ngOnInit, declarationData:", this.declarationData);
-    
+
     this.route.queryParams.subscribe(params => {
       console.log("Params reçus:", params);
       if (params['token']) {
@@ -197,6 +197,8 @@ declarationId: string | null = null;
 this.loadEmprunts();
  this.loadEspeces();
  this.loadTitresForDeclaration();
+ this.loadAutresBiensByDeclaration();
+ this.loadAutresDettes();
 
  this.loadCreancesByDeclaration();
  this.loadRevenusByDeclaration();
@@ -224,6 +226,8 @@ this.loadDisponibilites();
   localites : Vocabulaire[] = [];
   autrePrecisions: Vocabulaire[] = [];
   autresPrecision: Vocabulaire[] = [];
+    autresPrecisionsTitres: Vocabulaire[] = [];
+
   etatsGeneraux: Vocabulaire[] = [];
   designation: Vocabulaire[] = [];
   designationappareil: Vocabulaire[] = [];
@@ -238,6 +242,7 @@ debiteursCreances: Vocabulaire[] = [];
 carburant: Vocabulaire[] = [];
 typesTransmission: Vocabulaire[] = [];
 autresRevenus: Vocabulaire[] = [];
+autresPrecisionBien: Vocabulaire[] = [];
 typesTerrain: Vocabulaire[] = [];
   etatGeneral: Vocabulaire; 
   loadTypeVocabulaires(): void {
@@ -261,7 +266,7 @@ typesTerrain: Vocabulaire[] = [];
                   { name: 'institutionFinanciere', intitule: 'Institutions financières' },
                   { name: 'naturesTitres', intitule: 'Nature des titres' },
                   { name: 'emplacementsTitres', intitule: 'Emplacement titres' },
-                  { name: 'precisionsTitres', intitule: 'Autres précisions titres' },
+                  { name: 'autresPrecisionsTitres', intitule: 'Autres précisions titres' },
                   { name: 'debiteursCreances', intitule: 'Débiteurs créances' },
                   { name: 'autresPrecisionsCreances', intitule: 'Autres précisions créances' },
                   { name: 'autresRevenus', intitule: 'Type de revenus' },
@@ -274,8 +279,8 @@ typesTerrain: Vocabulaire[] = [];
                   { name: 'autrePrecisions', intitule: 'Autres précisions Dette' } ,
                   { name: 'creanciers', intitule: 'Créanciers dettes' },
                   { name: 'justificatifs', intitule: 'Justificatifs dettes' },
-                  //{ name: 'autresPrecision', intitule: 'Autres précisions créances' },
-                  { name: 'banques', intitule: 'Banques' },
+{ name: 'autresPrecisionBien', intitule: 'Autres précisions autres biens' }, 
+                 { name: 'banques', intitule: 'Banques' },
                   { name: 'carburant', intitule: 'carburant' },
                   { name: 'typesTransmission', intitule: 'Type de transmission' },
                   { name: 'typesTerrain', intitule: 'typeTerrain' } ,
@@ -764,38 +769,34 @@ uploadNewFoncierDocument(foncierID: number, file: File, newFoncier: any) {
       }
     });
   }
-
-  archiveSelectedFoncier() {
-    if (this.selectedFonciers?.length > 0) {
-      const deletePromises = this.selectedFonciers
-        .filter(foncier => foncier.id > 0)
-        .map(foncier => this.declarationService.deleteFoncierBati(foncier.id).toPromise());
-      
-      this.selectedFonciers.forEach(foncier => {
-        const index = this.foncierBatiTemp.findIndex(f => f === foncier || f.id === foncier.id);
-        if (index !== -1) this.foncierBatiTemp.splice(index, 1);
-      });
-      
-      Promise.all(deletePromises)
-        .then(() => {
-          this.selectedFonciers = [];
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Fonciers bâtis supprimés avec succès'
-          });
-        })
-        .catch(() => {
-          this.loadFonciersBati();
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Impossible de supprimer tous les fonciers bâtis'
-          });
-        });
-    }
-  }
+archiveSelectedFoncier() {
+  const deletePromises = this.selectedFonciers
+    .filter(foncier => foncier.id > 0)
+    .map(foncier => this.declarationService.deleteFoncierBati(foncier.id).toPromise());
   
+  this.foncierBatiTemp = this.foncierBatiTemp.filter(
+    f => !this.selectedFonciers.includes(f)
+  );
+  this.foncierBatiTemp = [...this.foncierBatiTemp];
+  
+  Promise.all(deletePromises)
+    .then(() => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: 'Fonciers bâtis supprimés avec succès'
+      });
+      this.selectedFonciers = [];
+    })
+    .catch(() => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de supprimer tous les fonciers bâtis'
+      });
+      this.loadFonciersBati();
+    });
+}
   startEditFoncier(foncier: any) {
     this.foncierBatiTemp.forEach(item => item.editing = false);
         foncier.editing = true;
@@ -883,7 +884,7 @@ resetNatureFilter(): void {
   // Réinitialiser avec les données originales si disponibles
   if (this.originalFoncierData?.length > 0) {
     this.foncierBatiTemp = [...this.originalFoncierData];
-    return;
+    //return;
   }
   
   // Sinon recharger depuis le serveur
@@ -930,10 +931,6 @@ onFileSelect(event: any) {
             messageShown = true;
           }
         },
-        error: (err) => {
-          console.error('Erreur upload:', err);
-          this.showError('Échec de l\'upload du document');
-        }
       });
     } else if (this.tableRowFoncier) {
       this.tableRowFoncier.file = file;
@@ -1011,7 +1008,21 @@ uploadFile(): void {
     this.showError('Aucun foncier sélectionné pour l\'upload');
   }
 }
+confirmDeleteSelectedFoncier(): void {
+  if (!this.selectedFonciers?.length) return;
 
+  this.confirmationService.confirm({
+    message: `Êtes-vous sûr de vouloir supprimer les ${this.selectedFonciers.length} fonciers non bâtis sélectionnés ?`,
+    header: 'Confirmation de suppression',
+    icon: 'pi pi-exclamation-triangle',
+    accept: () => {
+      this.archiveSelectedFoncier();
+    },
+    reject: () => {
+      this.selectedFonciers= [];
+    }
+  });
+}
 
 
 
@@ -4487,38 +4498,23 @@ loadTitresForDeclaration() {
     }
   });
 }
-filterByDesignationtitres() {
+filterByDesignationtitres(): void {
   if (!this.selectedDesignation) {
     this.titresTemp = [...this.originalTitresData];
     return;
   }
-
+  
   this.titresTemp = this.originalTitresData.filter(
     t => t.designationNatureAction?.id === this.selectedDesignation.id
   );
-  
-  // Alternative si le filtrage doit se faire côté serveur :
-  // this.loading = true;
-  // this.declarationService.getTitresByDesignation(this.selectedDesignation.id)
-  //   .subscribe({
-  //     next: (data) => {
-  //       this.titresTemp = data;
-  //       this.loading = false;
-  //     }
-  //   });
 }
-
 resetDesignationFilter(): void {
   this.selectedDesignation = null;
   
-  // Réinitialiser avec les données originales si disponibles
   if (this.originalTitresData?.length > 0) {
     this.titresTemp = [...this.originalTitresData];
-    //return;
   }
-  
-  // Sinon recharger depuis le serveur
-  this.loadTitresForDeclaration();
+    this.loadTitresForDeclaration();
 }
 // Méthodes de gestion des fichiers
 triggerFileUploadtitres(titre: any) {
@@ -6547,46 +6543,29 @@ cancelAddVehicule() {
   this.displayAddDialog = false;
   this.tableRowVehicule = this.resetVehicule();
 }
-addVehicule() {
-  const vehiculeForApi = this.prepareVehiculeForApi(this.tableRowVehicule);
+addVehicule(vehicule: any) {
+  const vehiculeForApi = this.prepareVehiculeForApi(vehicule);
   
-  this.loading = true;
   this.declarationService.createVehicule(vehiculeForApi).subscribe({
     next: (response) => {
-      const newVehicule = {
-        ...this.tableRowVehicule,
+      const newVehicule = { 
+        ...vehicule, 
         id: response.id,
         isNew: false,
         hasDocument: false,
         editing: false
       };
       
-      if (this.tableRowVehicule.file) {
-        this.uploadNewVehiculeDocument(response.id, this.tableRowVehicule.file, newVehicule);
+      if (vehicule.file) {
+        this.uploadNewVehiculeDocument(response.id, vehicule.file, newVehicule);
       } else {
         this.vehiculesTemp.push(newVehicule);
         this.originalVehiculeData.push({...newVehicule});
-        this.displayAddDialog = false;
         this.tableRowVehicule = this.resetVehicule();
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Véhicule ajouté avec succès'
-        });
-        this.loading = false;
+        this.showSuccess('Véhicule ajouté avec succès');
       }
     },
-    error: (err) => {
-      console.error('Erreur lors de l\'ajout du véhicule', err);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Impossible d\'ajouter le véhicule: ' + 
-              (err.error?.message || err.message || 'Erreur inconnue')
-      });
-      this.loading = false;
-    }
+    error: (err) => this.showError('Impossible d\'ajouter le véhicule')
   });
 }
 showUploadDialogvv(vehicule: any) {
@@ -6938,7 +6917,6 @@ prepareVehiculeForApi(vehicule: any) {
   };
 }
 
-// 4. Make sure carburant is included in confirmAddVehicule validation
 confirmAddVehicule() {
   this.submitted = true;
 
@@ -6960,7 +6938,7 @@ confirmAddVehicule() {
     message: 'Êtes-vous sûr de vouloir ajouter ce véhicule ?',
     header: 'Confirmation d\'ajout',
     accept: () => {
-      this.addVehicule();
+      this.addVehicule(this.tableRowVehicule); // Pass the vehicule parameter here
     }
   });
 }
@@ -6976,6 +6954,7 @@ resetRevenu(): any {
     dateCreation: new Date().toISOString().split('T')[0]
   };
 }
+
 
 
 
@@ -7106,88 +7085,64 @@ showUploadDialogAutreBien(bien: any) {
   this.selectedAutreBien = bien;
   this.fileUploadAutreBienElement.nativeElement.click();
 }
-
-uploadDocumentAutreBien(bien: any, file: File): Observable<any> {
+uploadDocumentAutreBien(bien: any, file: File) {
   this.isUploadingAutreBien = true;
   
-  return this.declarationService.uploadAutresBiensDeValeurDocument(bien.id, file).pipe(
-    tap((response) => {
-      if (response) {
-        bien.fileName = response.fileName;
-        bien.fileType = response.fileType;
-        bien.fileDownloadUri = response.fileDownloadUri;
-        bien.hasDocument = true;
-        
+  this.declarationService.uploadAutresBiensDeValeurDocument(bien.id, file)
+    .subscribe({
+      next: (response) => {
+        if (response) {
+          const index = this.autresBiensTemp.findIndex(b => b.id === bien.id);
+          if (index !== -1) {
+            this.autresBiensTemp[index].fileName = response.fileName;
+            this.autresBiensTemp[index].fileType = response.fileType;
+            this.autresBiensTemp[index].fileDownloadUri = response.fileDownloadUri;
+            this.autresBiensTemp[index].hasDocument = true;
+          }
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Document téléchargé avec succès'
+          });
+        }
+        this.selectedAutreBien = null;
+        this.isUploadingAutreBien = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors du téléchargement du document', err);
         this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Document téléchargé avec succès'
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Impossible de télécharger le document'
         });
+        this.isUploadingAutreBien = false;
       }
-    }),
-    catchError(err => {
-      console.error('Upload error:', err);
-      bien.hasDocument = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Échec de l\'upload: ' + (err.error?.message || err.message)
-      });
-      return throwError(err);
-    }),
-    finalize(() => {
-      this.isUploadingAutreBien = false;
-      this.selectedAutreBien = null;
-    })
-  );
+    });
 }
 
 onFileSelectAutreBien(event: any) {
-  try {
-    if (!event.target.files || event.target.files.length === 0) {
-      this.showError('Aucun fichier sélectionné');
-      return;
-    }
-
-    const file = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    
-    if (file.size > maxSize) {
-      this.showError('Le fichier est trop volumineux (max 5MB)');
-      return;
-    }
-
-    if (!this.isValidFileType(file)) {
-      this.showError('Type de fichier non supporté (PDF, JPEG, PNG uniquement)');
-      return;
-    }
-
-    if (this.selectedAutreBien) {
-      this.selectedAutreBien.file = file;
-      this.selectedAutreBien.fileName = file.name;
-      this.selectedAutreBien.fileType = file.type;
-      this.showSuccess('Document prêt à être uploadé avec le bien');
-      
-      this.uploadDocumentAutreBien(this.selectedAutreBien, file).subscribe({
-        error: (err) => {
-          console.error('Erreur upload:', err);
-          this.showError('Échec de l\'upload du document');
-        }
-      });
-    } else if (this.tableRowAutreBien) {
-      this.tableRowAutreBien.file = file;
-      this.tableRowAutreBien.fileName = file.name;
-      this.tableRowAutreBien.fileType = file.type;
-      this.showSuccess('Document prêt à être associé au bien');
-    }
-
-    event.target.value = '';
-  } catch (error) {
-    console.error('Erreur dans onFileSelectAutreBien:', error);
-    this.showError('Erreur lors de la sélection du fichier');
+  if (!event.target.files || event.target.files.length === 0) {
+    this.showError('Aucun fichier sélectionné');
+    return;
   }
-}
 
+  const file = event.target.files[0];
+  
+  if (this.selectedAutreBien) {
+    this.selectedAutreBien.file = file;
+    this.selectedAutreBien.fileName = file.name;
+    this.selectedAutreBien.fileType = file.type;
+    this.showSuccess('Document prêt à être uploadé avec le bien');
+  } else if (this.tableRowAutreBien) {
+    this.tableRowAutreBien.file = file;
+    this.tableRowAutreBien.fileName = file.name;
+    this.tableRowAutreBien.fileType = file.type;
+    this.showSuccess('Document prêt à être associé au bien');
+  }
+  
+  event.target.value = '';
+}
 selectedFileAutreBien: File = null;
 currentAutreBienForUpload: any = null;
 
@@ -7561,33 +7516,29 @@ resetAutreDette(): any {
     hasDocument: false
   };
 }
-
-// Chargement des dettes
 loadAutresDettes() {
   if (!this.declarationData?.id) {
     console.error('ID de déclaration non disponible pour les dettes');
     return;
   }
 
-  this.loading = true;
-  this.declarationService.getByDeclaration(this.declarationData.id).subscribe({
-    next: (data) => {
-      this.autresDettesTemp = data.map(item => ({
-        ...item,
-        creancier: item.creanciers,
-        pathJustificatif: item.justificatifs,
-        isEdit: false,
-        hasDocument: !!item.fileName
-      }));
-      this.isDataModified = false;
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Erreur lors du chargement des dettes', err);
-      this.error = 'Impossible de charger les dettes existantes';
-      this.loading = false;
-    }
-  });
+  this.declarationService.getByDeclaration(this.declarationData.id)
+    .subscribe({
+      next: (data) => {
+        this.autresDettesTemp = data.map(item => ({
+          ...item,
+          creancier: item.creanciers,
+          pathJustificatif: item.justificatifs,
+          isEdit: false,
+          hasDocument: !!item.fileName
+        }));
+        this.isDataModified = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des dettes', err);
+        this.error = 'Impossible de charger les dettes existantes';
+      }
+    });
 }
 
 // Validation
@@ -7651,8 +7602,7 @@ triggerFileUploaddette(dette: any) {
   this.selectedFile = null;
   this.displayUploadDialogdette = true;
 }
-
-downloadDocumentdette(dette: any) {
+downloadDocumentDette(dette: any) {
   if (!dette || !dette.hasDocument) {
     this.messageService.add({
       severity: 'warn',
@@ -7691,103 +7641,70 @@ downloadDocumentdette(dette: any) {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Impossible de télécharger le document: ' + 
-                 (err.error?.message || err.message || 'Erreur inconnue')
+          detail: 'Impossible de télécharger le document'
         });
       }
     });
 }
 
-uploadDocumentDette(dette: any, file: File): Observable<any> {
+uploadDocumentDette(dette: any, file: File) {
   this.isUploading = true;
   
-  return this.declarationService.uploadAutresDettesDocument(dette.id, file).pipe(
-    tap((response) => {
-      if (response) {
-        dette.fileName = response.fileName;
-        dette.fileType = response.fileType;
-        dette.fileDownloadUri = response.fileDownloadUri;
-        dette.hasDocument = true;
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Document téléchargé avec succès'
-        });
-      }
-    }),
-    catchError(err => {
-      console.error('Upload error:', err);
-      dette.hasDocument = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Échec de l\'upload: ' + (err.error?.message || err.message)
-      });
-      return throwError(err);
-    }),
-    finalize(() => {
-      this.isUploading = false;
-      this.selectedDette = null;
-    })
-  );
-}
-onFileSelectdette(event: any) {
-  try {
-    if (!event.target.files || event.target.files.length === 0) {
-      this.showError('Aucun fichier sélectionné');
-      return;
-    }
-
-    this.selectedFile = event.target.files[0];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-    
-    if (this.selectedFile.size > maxSize) {
-      this.showError('Le fichier est trop volumineux (max 5MB)');
-      this.selectedFile = null;
-      return;
-    }
-
-    if (!validTypes.includes(this.selectedFile.type)) {
-      this.showError('Type de fichier non supporté (PDF, JPEG, PNG uniquement)');
-      this.selectedFile = null;
-      return;
-    }
-
-    if (this.selectedDette) {
-      // Pour une dette existante
-      this.uploadDocumentDette(this.selectedDette, this.selectedFile).subscribe({
-        next: () => {
-          this.showSuccess('Document téléchargé avec succès');
-          this.displayUploadDialogdette = false;
-          this.selectedFile = null;
-        },
-        error: (err) => {
-          console.error('Erreur upload:', err);
-          this.showError('Échec de l\'upload du document');
-          this.selectedFile = null;
+  this.declarationService.uploadAutresDettesDocument(dette.id, file)
+    .subscribe({
+      next: (response) => {
+        if (response) {
+          const index = this.autresDettesTemp.findIndex(d => d.id === dette.id);
+          if (index !== -1) {
+            this.autresDettesTemp[index].fileName = response.fileName;
+            this.autresDettesTemp[index].fileType = response.fileType;
+            this.autresDettesTemp[index].fileDownloadUri = response.fileDownloadUri;
+            this.autresDettesTemp[index].hasDocument = true;
+          }
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Document téléchargé avec succès'
+          });
         }
-      });
-    } else if (this.tableRowAutreDette) {
-      // Pour une nouvelle dette
-      this.tableRowAutreDette.file = this.selectedFile;
-      this.tableRowAutreDette.fileName = this.selectedFile.name;
-      this.tableRowAutreDette.fileType = this.selectedFile.type;
-      this.showSuccess('Document prêt à être associé à la dette');
-      this.displayUploadDialogdette = false;
-      this.selectedFile = null;
-    }
-
-    event.target.value = '';
-  } catch (error) {
-    console.error('Erreur dans onFileSelect:', error);
-    this.showError('Erreur lors de la sélection du fichier');
-    this.selectedFile = null;
-  }
+        this.selectedDette = null;
+        this.isUploading = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors du téléchargement du document', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Impossible de télécharger le document'
+        });
+        this.isUploading = false;
+      }
+    });
 }
 
+onFileSelectDette(event: any) {
+  if (!event.target.files || event.target.files.length === 0) {
+    this.showError('Aucun fichier sélectionné');
+    return;
+  }
 
+  const file = event.target.files[0];
+  
+  if (this.selectedDette) {
+    this.selectedDette.file = file;
+    this.selectedDette.fileName = file.name;
+    this.selectedDette.fileType = file.type;
+    this.showSuccess('Document prêt à être uploadé avec la dette');
+  } else if (this.tableRowAutreDette) {
+    this.tableRowAutreDette.file = file;
+    this.tableRowAutreDette.fileName = file.name;
+    this.tableRowAutreDette.fileType = file.type;
+    this.showSuccess('Document prêt à être associé à la nouvelle dette');
+  }
+  
+  event.target.value = '';
+}
 
 
 
@@ -7815,53 +7732,42 @@ confirmAddDette() {
     }
   });
 }
-
 addDette() {
   const detteForApi = this.prepareDetteForApi(this.tableRowAutreDette);
   
-  this.declarationService.createAutreDette(detteForApi)
-    .subscribe({
-      next: (response) => {
-        const newDette = {
-          ...this.tableRowAutreDette,
-          id: response.id,
-          isNew: false,
-          hasDocument: false
-        };
-        
-        if (this.tableRowAutreDette.file) {
-          this.uploadNewDetteDocument(response.id, this.tableRowAutreDette.file, newDette);
-        } else {
-          this.autresDettesTemp.push(newDette);
-          this.displayAddDialog = false;
-          this.tableRowAutreDette = this.resetAutreDette();
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Dette ajoutée avec succès'
-          });
-        }
-      },
-      error: (err) => {
-        console.error('Erreur lors de la création de la dette', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de créer la dette: ' + 
-                (err.error?.message || err.message || 'Erreur inconnue')
-        });
+  this.declarationService.createAutreDette(detteForApi).subscribe({
+    next: (response) => {
+      const newDette = { 
+        ...this.tableRowAutreDette,
+        id: response.id,
+        isNew :false,
+        hasDocument: false
+      };
+      
+      if (this.tableRowAutreDette.file) {
+        this.uploadNewDetteDocument(response.id, this.tableRowAutreDette.file, newDette);
+      } else {
+        this.autresDettesTemp.push(newDette);
+        this.tableRowAutreDette = this.resetAutreDette();
+        this.displayAddDialog = false;
+                  this.submitted = false;
+
+        this.showSuccess('Dette ajoutée avec succès');
       }
-    });
+    },
+    error: (err) => this.showError('Erreur lors de l\'ajout de la dette')
+  });
 }
 uploadNewDetteDocument(detteID: number, file: File, newDette: any) {
   this.declarationService.uploadAutresDettesDocument(detteID, file)
     .subscribe({
       next: (response) => {
-        newDette.hasDocument = true;
-        newDette.fileName = response.fileName;
-        newDette.fileType = response.fileType;
-        newDette.fileDownloadUri = response.fileDownloadUri;
+        if (response) {
+          newDette.hasDocument = true;
+          newDette.fileName = response.fileName;
+          newDette.fileType = response.fileType;
+          newDette.fileDownloadUri = response.fileDownloadUri;
+        }
         
         this.autresDettesTemp.push(newDette);
         this.displayAddDialog = false;
@@ -7870,17 +7776,16 @@ uploadNewDetteDocument(detteID: number, file: File, newDette: any) {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: 'Dette et document ajoutés avec succès'
+          detail: 'Disponibilité ajoutée avec succès'
         });
-      },
+            },
       error: (err) => {
         console.error('Erreur lors du téléchargement du document', err);
-        // On ajoute quand même la dette sans le document
-        newDette.hasDocument = false;
         this.autresDettesTemp.push(newDette);
         this.displayAddDialog = false;
         this.tableRowAutreDette = this.resetAutreDette();
-        
+                this.submitted = false;
+
         this.messageService.add({
           severity: 'warning',
           summary: 'Attention',
@@ -7903,7 +7808,7 @@ handleFileDropdette(event: DragEvent) {
   event.preventDefault();
   if (event.dataTransfer?.files) {
     const file = event.dataTransfer.files[0];
-    this.onFileSelectdette({ target: { files: [file] } });
+    this.onFileSelectDette({ target: { files: [file] } });
   }
 }
 
@@ -7911,17 +7816,31 @@ cancelUploaddette() {
   this.selectedFile = null;
   this.displayUploadDialogdette = false;
 }
-
 uploadFiledette() {
   if (!this.selectedFile) return;
 
   if (this.selectedDette) {
-    this.uploadDocumentDette(this.selectedDette, this.selectedFile).subscribe({
-      next: () => {
-        this.displayUploadDialogdette = false;
-        this.selectedFile = null;
-      }
-    });
+    this.declarationService.uploadAutresDettesDocument(this.selectedDette.id, this.selectedFile)
+      .subscribe({
+        next: (response) => {
+          if (response) {
+            const index = this.autresDettesTemp.findIndex(d => d.id === this.selectedDette.id);
+            if (index !== -1) {
+              this.autresDettesTemp[index].fileName = response.fileName;
+              this.autresDettesTemp[index].fileType = response.fileType;
+              this.autresDettesTemp[index].fileDownloadUri = response.fileDownloadUri;
+              this.autresDettesTemp[index].hasDocument = true;
+            }
+            this.showSuccess('Document téléchargé avec succès');
+          }
+          this.displayUploadDialogdette = false;
+          this.selectedFile = null;
+        },
+        error: (err) => {
+          console.error('Erreur upload:', err);
+          this.showError('Échec de l\'upload du document');
+        }
+      });
   } else if (this.tableRowAutreDette) {
     this.tableRowAutreDette.file = this.selectedFile;
     this.tableRowAutreDette.fileName = this.selectedFile.name;

@@ -106,7 +106,7 @@
         <button pButton icon="pi pi-trash"
                 class="p-button-rounded p-button-danger p-button-outlined"
                 [disabled]="!selectedFonciers.length"
-                (click)="confirmDeleteSelected()"
+                (click)="confirmDeleteSelectedFoncier()"
                 title="Supprimer sélection">
         </button>
       </div>
@@ -1477,12 +1477,6 @@
             
            <td>
   <div class="flex align-items-center">
-    <!-- Toujours afficher le bouton d'upload en mode édition -->
-    <button pButton icon="pi pi-upload" 
-            class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
-            (click)="showUploadDialogAppareil(appareil)" 
-            pTooltip="Modifier le document">
-    </button>
     
     <button *ngIf="appareil.hasDocument" 
             pButton icon="pi pi-download" 
@@ -2809,7 +2803,7 @@
                         [(ngModel)]="titre.emplacement" class="w-full p-inputtext-sm"></p-dropdown>
             </td>
             <td>
-              <p-dropdown [options]="precisionsTitres" optionLabel="intitule" [appendTo]="'body'" 
+              <p-dropdown [options]="autresPrecisionsTitres" optionLabel="intitule" [appendTo]="'body'" 
                         [(ngModel)]="titre.autrePrecision" class="w-full p-inputtext-sm"></p-dropdown>
             </td>
             
@@ -2974,7 +2968,7 @@
             <i class="pi pi-info-circle mr-2 text-orange-500"></i>Précisions
           </label>
           <p-dropdown id="precision"
-                    [options]="precisionsTitres" 
+                    [options]="autresPrecisionsTitres" 
                     optionLabel="intitule" 
                     [(ngModel)]="tableRowTitre.autrePrecision" 
                     placeholder="Sélectionner" 
@@ -4184,7 +4178,7 @@
             </td>
             <td><input pInputText [(ngModel)]="bien.valeurAcquisition" type="number" class="w-full p-inputtext-sm" /></td>
             <td>
-              <p-dropdown [options]="autresPrecision" [appendTo]="'body'" optionLabel="intitule" 
+              <p-dropdown [options]="autresPrecisionBien" [appendTo]="'body'" optionLabel="intitule" 
                         [(ngModel)]="bien.autresPrecision" class="w-full p-inputtext-sm"></p-dropdown>
             </td>
             <td>
@@ -4392,7 +4386,7 @@
             <i class="pi pi-info-circle mr-2 text-orange-500"></i>Autres précisions
           </label>
           <p-dropdown id="precisions"
-                    [options]="autresPrecision" 
+                    [options]="autresPrecisionBien" 
                     optionLabel="intitule" 
                     [(ngModel)]="tableRowAutreBien.autresPrecision" 
                     placeholder="Sélectionner" 
@@ -4847,7 +4841,7 @@
               </span>
             </span>
           </div>
-          <input #filedetteUpload type="file" (change)="onFileSelectdette($event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          <input #filedetteUpload type="file" (change)="onFileSelectDette($event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                  style="display:none;" />
         </div>
         <div *ngIf="selectedFile" class="mt-3 flex align-items-center bg-orange-50 p-2 border-round">
@@ -4866,13 +4860,13 @@
               class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;"
               [disabled]="!selectedFile"
-              (click)="onFileSelectdette({target: {files: [selectedFile]}})"></button>
+              (click)="onFileSelectDette({target: {files: [selectedFile]}})"></button>
     </div>
   </ng-template>
 </p-dialog>
   <!-- Input file caché -->
   <input type="file" #filedetteUploadElement id="fileUpload" style="display:none" 
-         (change)="onFileSelectdette($event)" 
+         (change)="onFileSelectDette($event)" 
          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
 </p-accordionTab>
 <p-accordionTab  class="custom-orange" header="Disponibilités en Banque" (onOpen)="loadDisponibilites()" (onClose)="resetBanqueFilter()">
