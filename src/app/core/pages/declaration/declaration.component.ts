@@ -1595,7 +1595,7 @@ saveEditedFoncierNonBati(foncier: any) {
       fileName: foncier.fileName,
       fileType: foncier.fileType,
       fileDownloadUri: foncier.fileDownloadUri,
-            typesTerrain: foncier.typeTerrain || '',
+            typeTerrain: foncier.typeTerrain || '',
     };
   }
   
