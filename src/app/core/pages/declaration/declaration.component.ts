@@ -1580,9 +1580,9 @@ saveEditedFoncierNonBati(foncier: any) {
       nature: foncier.nature ? { id: foncier.nature.id || foncier.nature } : null,
       modeAcquisition: foncier.modeAcquisition ? { id: foncier.modeAcquisition.id || foncier.modeAcquisition } : null,
       ilot: foncier.ilot || '',
-      lotissement: foncier.lotissement || '',
+     lotissement: typeof foncier.lotissement === 'object' ? foncier.lotissement.intitule : foncier.lotissement,
+    localite: typeof foncier.localite === 'object' ? foncier.localite.intitule : foncier.localite,
       superficie: foncier.superficie,
-      localite: foncier.localite,
       titrePropriete: foncier.titrePropriete || '',
       dateAcquis: foncier.dateAcquis instanceof Date
         ? foncier.dateAcquis.toISOString().split('T')[0]
@@ -1869,8 +1869,9 @@ handleFileDropMeuble(event: DragEvent): void {
 
 showUploadDialogMeuble(meuble: any): void {
   this.selectedMeubleDoc = meuble;
-  this.displayUploadDialogMeuble = true;
   this.resetFileInputMeuble();
+    this.fileUploadMeubleElement?.nativeElement?.click();
+
 }
 
 uploadFileMeuble(): void {
@@ -6237,64 +6238,71 @@ designationsVehicule: Vocabulaire[] = [];
 marquesVehicule: Vocabulaire[] = [];
 etatsVehicule: Vocabulaire[] = [];
 transmissionsVehicule: Vocabulaire[] = []; // New field for transmission types
-// 1. Fix for document upload issue - Update the uploadNewVehiculeDocument method
 uploadNewVehiculeDocument(vehiculeID: number, file: File, newVehicule: any) {
+  this.loading = true; // Ajouter l'indicateur de chargement
+  
   this.declarationService.uploadVehiculesDocument(vehiculeID, file)
     .subscribe({
       next: (response) => {
-        // Update document properties before adding to array
-        if (response) {
-          newVehicule.hasDocument = true;
-          newVehicule.fileName = response.fileName;
-          newVehicule.fileType = response.fileType;
-          newVehicule.fileDownloadUri = response.fileDownloadUri;
-          
-          // Add the updated vehicule to arrays
-          this.vehiculesTemp.push(newVehicule);
-          this.originalVehiculeData.push({...newVehicule});
-          this.displayAddDialog = false;
-          this.tableRowVehicule = this.resetVehicule();
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Véhicule et document ajoutés avec succès'
-          });
-        } else {
-          // Handle case where response is empty but no error
-          newVehicule.hasDocument = false;
-          this.vehiculesTemp.push(newVehicule);
-          this.originalVehiculeData.push({...newVehicule});
-          this.displayAddDialog = false;
-          this.tableRowVehicule = this.resetVehicule();
-          
-          this.messageService.add({
-            severity: 'warning',
-            summary: 'Attention',
-            detail: 'Véhicule ajouté, mais problème avec le document'
-          });
-        }
-        this.loading = false;
+        // Mettre à jour les propriétés du document
+        const updatedVehicule = {
+          ...newVehicule,
+          hasDocument: !!response,
+          fileName: response?.fileName || null,
+          fileType: response?.fileType || null,
+          fileDownloadUri: response?.fileDownloadUri || null
+        };
+
+        // Ajouter le véhicule mis à jour aux tableaux
+        this.vehiculesTemp.push(updatedVehicule);
+        this.originalVehiculeData.push({...updatedVehicule});
+        
+        // Réinitialiser l'interface
+        this.displayAddDialog = false;
+        this.tableRowVehicule = this.resetVehicule();
+        this.submitted = false;
+        
+        // Message approprié selon la réponse
+        this.messageService.add({
+          severity: response ? 'success' : 'warning',
+          summary: response ? 'Succès' : 'Attention',
+          detail: response 
+            ? 'Véhicule et document ajoutés avec succès' 
+            : 'Véhicule ajouté, mais problème avec le document'
+        });
+        
+        // Forcer le rafraîchissement des données
+        this.loadVehiculesByDeclaration();
       },
       error: (err) => {
         console.error('Erreur lors du téléchargement du document', err);
-        // Still add the vehicule even if document upload fails
-        newVehicule.hasDocument = false;
-        this.vehiculesTemp.push(newVehicule);
-        this.originalVehiculeData.push({...newVehicule});
+        
+        // Ajouter le véhicule sans document en cas d'erreur
+        const vehiculeWithoutDoc = {
+          ...newVehicule,
+          hasDocument: false,
+          fileName: null,
+          fileType: null,
+          fileDownloadUri: null
+        };
+        
+        this.vehiculesTemp.push(vehiculeWithoutDoc);
+        this.originalVehiculeData.push({...vehiculeWithoutDoc});
+        
+        // Réinitialiser l'interface
         this.displayAddDialog = false;
         this.tableRowVehicule = this.resetVehicule();
+        this.submitted = false;
         
-        this.messageService.add({
-          severity: 'warning',
-          summary: 'Attention',
-          detail: 'Véhicule ajouté, mais erreur lors du téléchargement du document'
-        });
+     
+        // Forcer le rafraîchissement des données
+        this.loadVehiculesByDeclaration();
+      },
+      complete: () => {
         this.loading = false;
       }
     });
 }
-
 // 2. Fix for the uploadDocumentVehicule method to correctly update UI
 uploadDocumentVehicule(vehicule: any, file: File): Observable<any> {
   this.isUploading = true;
@@ -7492,7 +7500,6 @@ validateAutreBien(bien: any): boolean {
 selectedAutresDettes: any[] = []; // Éléments sélectionnés
 tableRowAutreDette: any = {}; // Nouvelle dette en cours d'ajout
 
-
 creanciers: Vocabulaire[] = [];
 justificatifs: Vocabulaire[] = [];
 
@@ -7682,7 +7689,6 @@ uploadDocumentDette(dette: any, file: File) {
       }
     });
 }
-
 onFileSelectDette(event: any) {
   if (!event.target.files || event.target.files.length === 0) {
     this.showError('Aucun fichier sélectionné');
@@ -7690,13 +7696,16 @@ onFileSelectDette(event: any) {
   }
 
   const file = event.target.files[0];
-  
+  this.selectedFile = file; // Garder une référence au fichier
+
   if (this.selectedDette) {
+    // Pour une dette existante en édition
     this.selectedDette.file = file;
     this.selectedDette.fileName = file.name;
     this.selectedDette.fileType = file.type;
-    this.showSuccess('Document prêt à être uploadé avec la dette');
+    this.uploadDocumentDette(this.selectedDette, file);
   } else if (this.tableRowAutreDette) {
+    // Pour une nouvelle dette
     this.tableRowAutreDette.file = file;
     this.tableRowAutreDette.fileName = file.name;
     this.tableRowAutreDette.fileType = file.type;
@@ -7705,17 +7714,13 @@ onFileSelectDette(event: any) {
   
   event.target.value = '';
 }
-
-
-
-// Gestion des actions
 showAddFormDialogdette() {
   this.tableRowAutreDette = this.resetAutreDette();
-  this.displayAddDialog = true;
+  this.displayUploadDialogdette = true;
 }
 
 cancelAddDette() {
-  this.displayAddDialog = false;
+  this.displayUploadDialogdette = false;
   this.tableRowAutreDette = this.resetAutreDette();
 }
 
@@ -7749,7 +7754,7 @@ addDette() {
       } else {
         this.autresDettesTemp.push(newDette);
         this.tableRowAutreDette = this.resetAutreDette();
-        this.displayAddDialog = false;
+        this.displayUploadDialogdette = false;
                   this.submitted = false;
 
         this.showSuccess('Dette ajoutée avec succès');
@@ -7757,8 +7762,7 @@ addDette() {
     },
     error: (err) => this.showError('Erreur lors de l\'ajout de la dette')
   });
-}
-uploadNewDetteDocument(detteID: number, file: File, newDette: any) {
+}uploadNewDetteDocument(detteID: number, file: File, newDette: any) {
   this.declarationService.uploadAutresDettesDocument(detteID, file)
     .subscribe({
       next: (response) => {
@@ -7769,22 +7773,25 @@ uploadNewDetteDocument(detteID: number, file: File, newDette: any) {
           newDette.fileDownloadUri = response.fileDownloadUri;
         }
         
+        // Ajoutez la dette au tableau avant de fermer le dialogue
         this.autresDettesTemp.push(newDette);
-        this.displayAddDialog = false;
+        this.displayUploadDialogdette = false;
         this.tableRowAutreDette = this.resetAutreDette();
+        this.submitted = false;
         
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: 'Disponibilité ajoutée avec succès'
+          detail: 'Dette et document ajoutés avec succès'
         });
-            },
+      },
       error: (err) => {
         console.error('Erreur lors du téléchargement du document', err);
+        // Ajoutez quand même la dette au tableau
         this.autresDettesTemp.push(newDette);
-        this.displayAddDialog = false;
+        this.displayUploadDialogdette = false;
         this.tableRowAutreDette = this.resetAutreDette();
-                this.submitted = false;
+        this.submitted = false;
 
         this.messageService.add({
           severity: 'warning',

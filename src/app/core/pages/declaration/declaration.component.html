@@ -672,8 +672,7 @@
 </style>
 
 <p-toast [style]="{marginTop: '80px'}" position="top-right"></p-toast>
-
-<p-accordionTab  class="custom-orange" header="Foncier non bâti" (onOpen)="loadFonciersNonBati()" (onClose)="resetNatureFilter()">
+<p-accordionTab class="custom-orange" header="Foncier non bâti" (onOpen)="loadFonciersNonBati()" (onClose)="resetNatureFilter()">
   <div class="card mb-4 p-3 shadow-sm">
     <div class="flex justify-content-between align-items-center mb-3">
       <h3 class="m-0 text-xl font-medium text-orange-500">Liste des fonciers non bâtis</h3>
@@ -723,9 +722,9 @@
           <th pSortableColumn="typeTerrain">Type terrain <p-sortIcon field="typeTerrain"></p-sortIcon></th>
           <th pSortableColumn="modeAcquisition">Acquisition <p-sortIcon field="modeAcquisition"></p-sortIcon></th>
           <th pSortableColumn="ilot">Ilot <p-sortIcon field="ilot"></p-sortIcon></th>
-          <th pSortableColumn="lotissement">Lotissement <p-sortIcon field="lotissement"></p-sortIcon></th>
+          <th pSortableColumn="lotissement">Type d'usage <p-sortIcon field="lotissement"></p-sortIcon></th>
           <th pSortableColumn="superficie">Superficie <p-sortIcon field="superficie"></p-sortIcon></th>
-          <th pSortableColumn="localite">Localité <p-sortIcon field="localite"></p-sortIcon></th>
+          <th pSortableColumn="localite"> Gouvernorat <p-sortIcon field="localite"></p-sortIcon></th>
           <th pSortableColumn="titrePropriete">Titre propriété <p-sortIcon field="titrePropriete"></p-sortIcon></th>
           <th pSortableColumn="dateAcquis">Date acquis. <p-sortIcon field="dateAcquis"></p-sortIcon></th>
           <th pSortableColumn="valeurAcquisFCFA">Coût Acq. <p-sortIcon field="valeurAcquisFCFA"></p-sortIcon></th>
@@ -744,9 +743,9 @@
             <td>{{ getIntitule(foncier.typeTerrain) }}</td>
             <td>{{ getIntitule(foncier.modeAcquisition) }}</td>
             <td>{{ foncier.ilot }}</td>
-            <td>{{ foncier.lotissement }}</td>
+            <td>{{foncier.lotissement }}</td>
             <td>{{ foncier.superficie | number }} m²</td>
-            <td>{{ foncier.localite }}</td>
+<td>{{ foncier.localite}}</td>
             <td>{{ foncier.titrePropriete }}</td>
             <td>{{ foncier.dateAcquis | date:'dd/MM/yyyy' }}</td>
             <td class="font-bold text-right">{{ foncier.valeurAcquisFCFA | currency:'FCFA':'symbol':'1.0-0' }}</td>
@@ -800,9 +799,29 @@
                         [(ngModel)]="foncier.modeAcquisition" class="w-full p-inputtext-sm"></p-dropdown>
             </td>
             <td><input pInputText [(ngModel)]="foncier.ilot" class="w-full p-inputtext-sm" /></td>
-            <td><input pInputText [(ngModel)]="foncier.lotissement" class="w-full p-inputtext-sm" /></td>
+            <td>
+              <p-dropdown [options]="lotissements" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.lotissement" class="w-full p-inputtext-sm">
+                <ng-template pTemplate="selectedItem">
+                  <span>{{foncier.lotissement}}</span>
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                  <span>{{item.intitule}}</span>
+                </ng-template>
+              </p-dropdown>
+            </td>
             <td><input pInputText [(ngModel)]="foncier.superficie" type="number" class="w-full p-inputtext-sm" /></td>
-            <td><input pInputText [(ngModel)]="foncier.localite" class="w-full p-inputtext-sm" /></td>
+            <td>
+              <p-dropdown [options]="localisations" optionLabel="intitule" [appendTo]="'body'" 
+                        [(ngModel)]="foncier.localite" class="w-full p-inputtext-sm">
+                <ng-template pTemplate="selectedItem">
+                  <span>{{foncier.localite}}</span>
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                  <span>{{item.intitule}}</span>
+                </ng-template>
+              </p-dropdown>
+            </td>
             <td><input pInputText [(ngModel)]="foncier.titrePropriete" class="w-full p-inputtext-sm" /></td>
             <td>
               <p-calendar [(ngModel)]="foncier.dateAcquis" [appendTo]="'body'"
@@ -993,10 +1012,28 @@
       <!-- Ligne 3 - Lotissement et Superficie -->
       <div class="field col-12 md:col-6 p-3">
         <label for="lotissementNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
-          <i class="pi pi-map-marker mr-2 text-orange-500"></i>Lotissement
+          <i class="pi pi-map-marker mr-2 text-orange-500"></i>Type d'usage
         </label>
-        <input id="lotissementNonBati" pInputText [(ngModel)]="newFoncierNonBati.lotissement" class="w-full" 
-               style="height: 40px;" />
+      <p-dropdown id="lotissementNonBati"
+          [options]="usages" 
+          optionLabel="intitule" 
+          [(ngModel)]="newFoncierNonBati.lotissement" 
+          placeholder="Sélectionner" 
+          class="w-full"
+          [style]="{'height': '40px'}">
+  <ng-template pTemplate="selectedItem">
+    <div class="flex align-items-center" *ngIf="newFoncierNonBati.lotissement">
+      <i class="pi pi-map-marker mr-2 text-orange-500"></i>
+      <span>{{newFoncierNonBati.lotissement.intitule || newFoncierNonBati.lotissement}}</span>
+    </div>
+  </ng-template>
+  <ng-template let-item pTemplate="item">
+    <div class="flex align-items-center">
+      <i class="pi pi-map-marker mr-2 text-orange-500"></i>
+      <span>{{item.intitule}}</span>
+    </div>
+  </ng-template>
+</p-dropdown>
       </div>
 
       <div class="field col-12 md:col-6 p-3">
@@ -1015,12 +1052,30 @@
       <!-- Ligne 4 - Localité et Titre de propriété -->
       <div class="field col-12 md:col-6 p-3">
         <label for="localiteNonBati" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
-          <i class="pi pi-globe mr-2 text-orange-500"></i>Localité<span class="text-danger">*</span>
+          <i class="pi pi-globe mr-2 text-orange-500"></i> Gouvernorat<span class="text-danger">*</span>
         </label>
-        <input id="localiteNonBati" pInputText [(ngModel)]="newFoncierNonBati.localite" class="w-full" 
-               style="height: 40px;"
-               [ngClass]="{'p-invalid': submitted && !newFoncierNonBati.localite}" />
-        <small *ngIf="submitted && !newFoncierNonBati.localite" class="p-error block mt-1">La localité est requise</small>
+     <p-dropdown id="localiteNonBati"
+          [options]="localisations" 
+          optionLabel="intitule" 
+          [(ngModel)]="newFoncierNonBati.localite" 
+          placeholder="Sélectionner" 
+          [required]="true" 
+          class="w-full"
+          [style]="{'border-color': submitted && !newFoncierNonBati.localite ? '#f87171' : '', 'height': '40px'}">
+  <ng-template pTemplate="selectedItem">
+    <div class="flex align-items-center" *ngIf="newFoncierNonBati.localite">
+      <i class="pi pi-globe mr-2 text-orange-500"></i>
+      <span>{{newFoncierNonBati.localite.intitule || newFoncierNonBati.localite}}</span>
+    </div>
+  </ng-template>
+  <ng-template let-item pTemplate="item">
+    <div class="flex align-items-center">
+      <i class="pi pi-globe mr-2 text-orange-500"></i>
+      <span>{{item.intitule}}</span>
+    </div>
+  </ng-template>
+</p-dropdown>
+        <small *ngIf="submitted && !newFoncierNonBati.localite" class="p-error block mt-1">La  gouvernorat est requise</small>
       </div>
 
       <div class="field col-12 md:col-6 p-3">
@@ -1094,7 +1149,7 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddFoncierNonBati()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddFoncierNonBati()"></button>
     </div>
@@ -1404,7 +1459,7 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddMeuble()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddMeuble()"></button>
     </div>
@@ -1714,7 +1769,7 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddAppareil()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddAppareil()"></button>
     </div>
@@ -2085,7 +2140,7 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddAnimal()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddAnimal()"></button>
     </div>
@@ -2391,7 +2446,7 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddEmprunt()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddEmprunt()"></button>
     </div>
@@ -2691,7 +2746,7 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddEspece()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
               style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddEspece()"></button>
     </div>
@@ -3486,7 +3541,7 @@
   <div class="p-dialog-content">
     <div class="formgrid grid p-4 surface-card border-round-lg shadow-2">
 
-      <!-- Débiteur -->
+      <!-- Ligne 1 - Débiteur et Montant -->
       <div class="field col-12 md:col-6 p-3">
         <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-user mr-2 text-orange-500"></i>Débiteur<span class="text-danger">*</span>
@@ -3498,20 +3553,40 @@
                     [required]="true"
                     class="w-full"
                     [style]="{ 'border-color': creanceSubmitted && !tableRowCreance.debiteur ? '#f87171' : '', 'height': '40px' }">
+          <ng-template pTemplate="selectedItem">
+            <div class="flex align-items-center" *ngIf="tableRowCreance.debiteur">
+              <i class="pi pi-user mr-2 text-orange-500"></i>
+              <span>{{tableRowCreance.debiteur.intitule}}</span>
+            </div>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center">
+              <i class="pi pi-user mr-2 text-orange-500"></i>
+              <span>{{item.intitule}}</span>
+            </div>
+          </ng-template>
         </p-dropdown>
         <small *ngIf="creanceSubmitted && !tableRowCreance.debiteur" class="p-error block mt-1">Le débiteur est requis</small>
       </div>
 
-      <!-- Montant -->
       <div class="field col-12 md:col-6 p-3">
         <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-money-bill mr-2 text-orange-500"></i>Montant (FCFA)<span class="text-danger">*</span>
         </label>
-        <input pInputText [(ngModel)]="tableRowCreance.montant" type="number" class="w-full" placeholder="Ex: 150000" />
-        <small *ngIf="creanceSubmitted && !tableRowCreance.montant" class="p-error block mt-1">Le montant est requis</small>
+        <div class="p-inputgroup" style="height: 40px;">
+          <span class="p-inputgroup-addon" style="background: linear-gradient(to right, #ff7b00, #ff9e00); color: white;">FCFA</span>
+          <input pInputText [(ngModel)]="tableRowCreance.montant" 
+                 type="number" 
+                 class="w-full" 
+                 placeholder="Ex: 150000" 
+                 style="height: 40px;"
+                 [ngClass]="{'p-invalid': creanceSubmitted && (!tableRowCreance.montant || tableRowCreance.montant <= 0)}" />
+        </div>
+        <small *ngIf="creanceSubmitted && (!tableRowCreance.montant || tableRowCreance.montant <= 0)" 
+               class="p-error block mt-1">Le montant doit être supérieur à 0</small>
       </div>
 
-      <!-- Autres Précisions -->
+      <!-- Ligne 2 - Autres Précisions -->
       <div class="field col-12 md:col-6 p-3">
         <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-info-circle mr-2 text-orange-500"></i>Autres Précisions
@@ -3520,38 +3595,59 @@
                     optionLabel="intitule" 
                     [(ngModel)]="tableRowCreance.autresPrecision"
                     placeholder="Sélectionner" 
-                    class="w-full">
+                    class="w-full"
+                    [style]="{'height': '40px'}">
+          <ng-template pTemplate="selectedItem">
+            <div class="flex align-items-center" *ngIf="tableRowCreance.autresPrecision">
+              <i class="pi pi-info-circle mr-2 text-orange-500"></i>
+              <span>{{tableRowCreance.autresPrecision.intitule}}</span>
+            </div>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center">
+              <i class="pi pi-info-circle mr-2 text-orange-500"></i>
+              <span>{{item.intitule}}</span>
+            </div>
+          </ng-template>
         </p-dropdown>
       </div>
 
-    
-<div class="field col-12 p-3">
-  <label class="font-bold mb-2 block">Document justificatif</label>
-  <div class="flex align-items-center gap-2">
-    <button pButton type="button" 
-            icon="pi pi-upload"
-            label="Choisir un fichier"
-            class="p-button-sm p-button-outlined"
-            (click)="fileUploadCreanceInput.click()"></button>
-    <span *ngIf="tableRowCreance.file" class="text-sm text-primary">
-      {{ tableRowCreance.file.name }}
-    </span>
-    <span *ngIf="!tableRowCreance?.file && tableRowCreance?.fileName" class="text-sm text-primary">
-      {{ tableRowCreance.fileName }}
-    </span>
-    <span *ngIf="!tableRowCreance?.file && !tableRowCreance?.fileName" class="text-sm text-gray-500">
-      Aucun fichier sélectionné
-    </span>
-  </div>
-  <small class="text-gray-500 block mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 5MB)</small>
-</div>
+      <!-- Ligne 3 - Document justificatif -->
+      <div class="field col-12 p-3">
+        <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
+          <i class="pi pi-file mr-2 text-orange-500"></i>Document justificatif
+        </label>
+        <div class="flex align-items-center gap-2">
+          <button pButton icon="pi pi-upload" 
+                  class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
+                  (click)="fileUploadCreanceInput.click()" 
+                  label="Ajouter un document">
+          </button>
+          <div *ngIf="tableRowCreance.file || tableRowCreance.fileName" class="ml-3 flex align-items-center bg-orange-50 p-2 border-round">
+            <i class="pi pi-file text-orange-500 mr-2"></i>
+            <span class="text-sm text-orange-500">
+              {{ tableRowCreance.file?.name || tableRowCreance.fileName }}
+            </span>
+            <button pButton icon="pi pi-times" 
+                    class="p-button-rounded p-button-text p-button-sm text-red-500 hover:bg-red-100 ml-2"
+                    pTooltip="Supprimer"
+                    (click)="removeSelectedFileCreance()"></button>
+          </div>
+          <small *ngIf="!(tableRowCreance.file || tableRowCreance.fileName)" class="text-sm text-gray-500">
+            Aucun fichier sélectionné
+          </small>
+        </div>
+        <small class="text-gray-500 block mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 5MB)</small>
+      </div>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-content-end gap-2">
-      <button pButton label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideAddCreanceDialog()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button" (click)="addCreance()"></button>
+    <div class="flex justify-content-center gap-3">
+      <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="hideAddCreanceDialog()"></button>
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
+              style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
+              (click)="addCreance()"></button>
     </div>
   </ng-template>
 </p-dialog>
@@ -3994,7 +4090,10 @@
                       pTooltip="Supprimer"
                       (click)="removeSelectedFilevv()"></button>
             </div>
+
           </div>
+            <small class="text-gray-500 block mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 5MB)</small>
+
         </div>
       </div>
     </div>
@@ -4491,6 +4590,7 @@
               [disabled]="!selectedFile"
               (click)="uploadFiledette()"></button>
     </div>
+    
   </ng-template>
 </p-dialog>
 
@@ -4611,12 +4711,13 @@
                 <button pButton icon="pi pi-upload" 
                         class="p-button-rounded p-button-text p-button-sm p-button-info mr-2"
                         (click)="triggerFileUpload(dette)"
-                        pTooltip="Ajouter/modifier document"></button>
+                        pTooltip="Ajouterdocument"></button>
                 
                 <span *ngIf="dette.hasDocument" class="document-name text-sm text-primary">
                   {{ dette.fileName }}
                 </span>
               </div>
+              
             </td>
             
             <td>
@@ -4657,7 +4758,7 @@
   <!-- Dialog pour ajouter une nouvelle dette -->
   <p-dialog  
     header="Ajouter une nouvelle dette" 
-    [(visible)]="displayAddDialog" 
+    [(visible)]="displayUploadDialogdette" 
     [modal]="true"
     [draggable]="false" 
     [resizable]="false"
@@ -4779,21 +4880,21 @@
           <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
             <i class="pi pi-file mr-2 text-orange-500"></i>Document (facultatif)
           </label>
-          <div class="flex align-items-center gap-2">
-            <button pButton 
-                    icon="pi pi-upload" 
-                    class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
-                    (click)="showUploadDialogForNewDette()" 
-                    label="Ajouter un document">
-            </button>
-            <div *ngIf="tableRowAutreDette.fileName" class="ml-3 flex align-items-center bg-orange-50 p-2 border-round">
-              <i class="pi pi-file text-orange-500 mr-2"></i>
-              <span class="text-sm text-orange-500">{{ tableRowAutreDette.fileName }}</span>
-              <button pButton icon="pi pi-times" 
-                      class="p-button-rounded p-button-text p-button-sm text-red-500 hover:bg-red-100 ml-2"
-                      pTooltip="Supprimer"
-                      (click)="removeSelectedFiledette()"></button>
-            </div>
+       <div class="flex align-items-center gap-2">
+  <button pButton 
+          icon="pi pi-upload" 
+          class="p-button-rounded p-button-text p-button-sm p-button-info mr-2" 
+          (click)="filedetteUploadElement.click()" 
+          label="Ajouter un document">
+  </button>
+  <div *ngIf="tableRowAutreDette.file" class="ml-3 flex align-items-center bg-orange-50 p-2 border-round">
+    <i class="pi pi-file text-orange-500 mr-2"></i>
+    <span class="text-sm text-orange-500">{{ tableRowAutreDette.file.name }}</span>
+    <button pButton icon="pi pi-times" 
+            class="p-button-rounded p-button-text p-button-sm text-red-500 hover:bg-red-100 ml-2"
+            pTooltip="Supprimer"
+            (click)="removeSelectedFiledette()"></button>
+  </div>
           </div>
         </div>
       </div>
@@ -4808,62 +4909,6 @@
       </div>
     </ng-template>
   </p-dialog>
-
-  <!-- Dialog pour upload de document -->
-  <p-dialog header="Télécharger un document" 
-           [(visible)]="displayUploadDialogdette" 
-           [style]="{width: '450px'}" 
-           [modal]="true" 
-           [draggable]="false" 
-           [resizable]="false"
-           styleClass="custom-dialog">
-    <ng-template pTemplate="header">
-      <div class="w-full text-center" style="background: linear-gradient(to right, #ff7b00, #ff9e00);">
-        <span class="text-white text-xl font-bold">Télécharger un document</span>
-      </div>
-    </ng-template>
-    
-    <div class="p-dialog-content">
-      <div class="flex flex-column p-4 surface-card border-round-lg shadow-2">
-        <label class="font-bold mb-2 text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
-          <i class="pi pi-file-import mr-2 text-orange-500"></i>Sélectionner un fichier
-        </label>
-        <div class="p-field-file">
-          <div class="py-3 px-4 border-1 border-dashed border-orange-500 border-round mb-2 text-center cursor-pointer hover:bg-orange-50 transition-colors transition-duration-300" 
-               (click)="fileUpload.nativeElement.click()" 
-               (dragover)="$event.preventDefault()" 
-               (drop)="handleFileDropdette($event)">
-            <span class="flex flex-column align-items-center">
-              <i class="pi pi-cloud-upload text-5xl text-orange-500 mb-2"></i>
-              <span class="text-orange-500">Glisser et déposer un fichier ici ou cliquer pour parcourir</span>
-              <span class="text-sm text-orange-300 mt-1">
-                (.pdf, .doc, .docx, .jpg, .jpeg, .png) - max 5 MB
-              </span>
-            </span>
-          </div>
-          <input #filedetteUpload type="file" (change)="onFileSelectDette($event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                 style="display:none;" />
-        </div>
-        <div *ngIf="selectedFile" class="mt-3 flex align-items-center bg-orange-50 p-2 border-round">
-          <i class="pi pi-file text-orange-500 mr-2"></i>
-          <span class="text-orange-500">{{ selectedFile.name }}</span>
-          <span class="text-sm text-orange-300 ml-2">({{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
-        </div>
-      </div>
-    </div>
-     <ng-template pTemplate="footer">
-    <div class="flex justify-content-center gap-3">
-      <button pButton label="Annuler" icon="pi pi-times" 
-              class="p-button-outlined p-button-secondary w-10rem" 
-              (click)="displayUploadDialogdette = false; selectedFile = null;"></button>
-      <button pButton label="Télécharger" icon="pi pi-upload" 
-              class="p-button-raised w-10rem" 
-              style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;"
-              [disabled]="!selectedFile"
-              (click)="onFileSelectDette({target: {files: [selectedFile]}})"></button>
-    </div>
-  </ng-template>
-</p-dialog>
   <!-- Input file caché -->
   <input type="file" #filedetteUploadElement id="fileUpload" style="display:none" 
          (change)="onFileSelectDette($event)" 
@@ -5065,7 +5110,7 @@
     width: '70vw', 
     maxWidth: '800px', 
     fontSize: '1.2rem', 
-    borderRadius: '16px',
+    borderRadius: '16px'
   }"
   styleClass="p-3 surface-ground text-color border-round-xl"
   [baseZIndex]="10000">
@@ -5080,7 +5125,7 @@
     <div class="formgrid grid p-4 surface-card border-round-lg shadow-2">
       <!-- Ligne 1 - Banque et Type de compte -->
       <div class="field col-12 md:col-6 p-3">
-        <label for="banqueDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #f0f8ff, #ddeeff); padding: 0.5rem; border-radius: 6px;">
+        <label for="banqueDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-building mr-2 text-blue-500"></i>Banque<span class="text-danger">*</span>
         </label>
         <p-dropdown id="banqueDispo"
@@ -5108,7 +5153,7 @@
       </div>
       
       <div class="field col-12 md:col-6 p-3">
-        <label for="typeCompteDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #f0f8ff, #ddeeff); padding: 0.5rem; border-radius: 6px;">
+        <label for="typeCompteDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-credit-card mr-2 text-blue-500"></i>Type de compte<span class="text-danger">*</span>
         </label>
         <p-dropdown id="typeCompteDispo"
@@ -5137,7 +5182,7 @@
 
       <!-- Ligne 2 - Numéro de compte et Date du solde -->
       <div class="field col-12 md:col-6 p-3">
-        <label for="numeroCompteDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #f0f8ff, #ddeeff); padding: 0.5rem; border-radius: 6px;">
+        <label for="numeroCompteDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-id-card mr-2 text-blue-500"></i>Numéro de compte<span class="text-danger">*</span>
         </label>
         <input id="numeroCompteDispo" pInputText [(ngModel)]="tableRowDisponibilite.numeroCompte" class="w-full" 
@@ -5147,7 +5192,7 @@
       </div>
       
       <div class="field col-12 md:col-6 p-3">
-        <label for="dateSoldeDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #f0f8ff, #ddeeff); padding: 0.5rem; border-radius: 6px;">
+        <label for="dateSoldeDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-calendar mr-2 text-blue-500"></i>Date du solde<span class="text-danger">*</span>
         </label>
         <p-calendar id="dateSoldeDispo"
@@ -5161,11 +5206,11 @@
 
       <!-- Ligne 3 - Solde -->
       <div class="field col-12 p-3">
-        <label for="soldeDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #f0f8ff, #ddeeff); padding: 0.5rem; border-radius: 6px;">
+        <label for="soldeDispo" class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-money-bill mr-2 text-blue-500"></i>Solde (FCFA)<span class="text-danger">*</span>
         </label>
         <div class="p-inputgroup" style="height: 40px;">
-          <span class="p-inputgroup-addon" style="background: linear-gradient(to right, #007bff, #00a1ff); color: white;">FCFA</span>
+          <span class="p-inputgroup-addon" style="background: linear-gradient(to right, #ff7b00, #ff9e00); color: white;">FCFA</span>
           <input id="soldeDispo" pInputText [(ngModel)]="tableRowDisponibilite.soldeFCFA" type="number" min="0" class="w-full" style="height: 40px;"
                  [ngClass]="{'p-invalid': submitted && !tableRowDisponibilite.soldeFCFA}" />
         </div>
@@ -5174,7 +5219,7 @@
 
       <!-- Ligne 4 - Documents -->
       <div class="field col-12 p-3">
-        <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #f0f8ff, #ddeeff); padding: 0.5rem; border-radius: 6px;">
+        <label class="font-bold mb-2 block text-900" style="background: linear-gradient(to right, #fff8f0, #ffeedd); padding: 0.5rem; border-radius: 6px;">
           <i class="pi pi-file mr-2 text-blue-500"></i>Document justificatif
         </label>
         <div class="flex align-items-center gap-2">
@@ -5199,8 +5244,8 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-3">
       <button pButton label="Annuler" icon="pi pi-times" class="p-button-outlined p-button-secondary w-10rem" (click)="cancelAddDispo()"></button>
-      <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-raised w-10rem" 
-              style="background: linear-gradient(to right, #007bff, #00a1ff); border: none;" 
+      <button pButton label="Ajouter" icon="pi pi-check" class="p-button-raised w-10rem" 
+              style="background: linear-gradient(to right, #ff7b00, #ff9e00); border: none;" 
               (click)="confirmAddDispo()"></button>
     </div>
   </ng-template>
